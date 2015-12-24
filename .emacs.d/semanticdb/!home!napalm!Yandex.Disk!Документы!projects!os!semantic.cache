@@ -1,0 +1,17 @@
+;; Object os/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "os/"
+  :tables
+  (list
+    (semanticdb-table "kernel.c"
+      :major-mode 'c-mode
+      :tags 
+        '( ("kmain" function (:type "void") nil [1 138]))          
+      :file "kernel.c"
+      :pointmax 139
+      :fsize 138
+      :lastmodtime '(22126 53594 234420 323000)
+      :unmatched-syntax nil))
+  :file "!home!napalm!Yandex.Disk!Документы!projects!os!semantic.cache"
+  :semantic-tag-version "2.0"
+  :semanticdb-version "2.2")

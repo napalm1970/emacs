@@ -1,0 +1,71 @@
+;; Object who1/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "who1/"
+  :tables
+  (list
+    (semanticdb-table "who.c"
+      :major-mode 'c-mode
+      :tags 
+        '( ("stdio.h" include (:system-flag t) nil [1 19])
+            ("utmp.h" include (:system-flag t) nil [20 37])
+            ("fcntl.h" include (:system-flag t) nil [38 56])
+            ("unistd.h" include (:system-flag t) nil [57 76])
+            ("stdlib.h" include (:system-flag t) nil [77 96])
+            ("time.h" include (:system-flag t) nil [97 114])
+            ("SHOWHOST" variable (:constant-flag t) nil [126 134])
+            ("show_info" function
+               (:prototype-flag t
+                :arguments 
+                  ( ("u" variable
+                       (:pointer 1
+                        :type ("utmp" type
+                             (:prototype t
+                              :type "struct")
+                              nil nil))
+                        (reparse-symbol arg-sub-list) [153 168]))                  
+                :type "void")
+                nil [138 169])
+            ("show_time" function
+               (:prototype-flag t
+                :arguments 
+                  ( ("" variable (:type "long") (reparse-symbol arg-sub-list) [185 190]))                  
+                :type "void")
+                nil [170 191])
+            ("main" function
+               (:arguments 
+                  ( ("argc" variable (:type "int") (reparse-symbol arg-sub-list) [203 212])
+                    ("argv" variable
+                       (:pointer 1
+                        :dereference 1
+                        :type "char")
+                        (reparse-symbol arg-sub-list) [213 226]))                  
+                :type "int")
+                nil [194 534])
+            ("show_info" function
+               (:arguments 
+                  ( ("utbufp" variable
+                       (:pointer 1
+                        :type ("utmp" type
+                             (:prototype t
+                              :type "struct")
+                              nil nil))
+                        (reparse-symbol arg-sub-list) [551 571]))                  
+                :type "void")
+                nil [536 919])
+            ("show_time" function
+               (:arguments 
+                  ( ("timeval" variable (:type "long") (reparse-symbol arg-sub-list) [937 950]))                  
+                :type "void")
+                nil [922 1017]))          
+      :file "who.c"
+      :pointmax 1018
+      :fsize 1017
+      :lastmodtime '(22133 47321 744450 286000)
+      :unmatched-syntax nil
+      :lexical-table 
+        '(("SHOWHOST" . ((number "1" 135 . 136)))
+          )
+))
+  :file "!home!napalm!Yandex.Disk!Документы!projects!c!who1!semantic.cache"
+  :semantic-tag-version "2.0"
+  :semanticdb-version "2.2")
