@@ -20,7 +20,8 @@
 
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(load-theme 'manoj-dark t)
+;; (load-theme 'manoj-dark t)
+(load-theme 'tsdh-dark t)
 
 (require 'smartparens-config) 
 (smartparens-global-mode t)
@@ -75,8 +76,6 @@
   "ace-jump-mode"
   "Emacs quick move minor mode"
   t)
-;; you can select the key you prefer to
-(define-key global-map (kbd "C-c SPC") 'ace-jump-mode)
 
 (autoload
   'ace-jump-mode-pop-mark
@@ -304,7 +303,7 @@
 
 
 
-(set-face-background 'hl-line "#dcdcdc")
+;; (set-face-background 'hl-line "#dcdcdc")
 
 (add-hook 'c-mode-hook 'projectile-mode)
 (add-hook 'c++-mode-hook 'projectile-mode)
@@ -326,6 +325,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(column-number-mode t)
  '(display-time-mode t)
  '(package-archives
@@ -341,7 +342,7 @@
      (lambda nil
        (shell shell-pop-term-shell)))))
  '(shell-pop-term-shell "/bin/bash")
- '(shell-pop-universal-key "C-t")
+ '(shell-pop-universal-key "C-x t")
  '(shell-pop-window-position "bottom")
  '(shell-pop-window-size 30)
  '(show-paren-mode t)
@@ -352,7 +353,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 122 :width normal))))
- '(hl-line ((t (:background "dim gray")))))
+
+ )
 
 
 
@@ -413,7 +415,7 @@
 (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
 ;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
 
-(add-hook 'go-mode-hook 'go-oracle-mode)
+(add-hook 'go-mode-hook 'oracle)
 
 (add-hook 'go-mode-hook '(lambda ()
 			   (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)))
