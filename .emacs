@@ -86,6 +86,12 @@
   '(ace-jump-mode-enable-mark-sync))
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 
+(global-set-key (kbd "C-c SPC") ' ace-jump-word-mode)
+(global-set-key (kbd "C-c C-c SPC") ' ace-jump-char-mode)
+(global-set-key (kbd "C-c C-c C-c SPC") ' ace-jump-line-mode)
+
+
+
 ;; Usage:
 
 ;; "C-c SPC" ==> ace-jump-word-mode
@@ -120,10 +126,6 @@
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
 (yas--initialize)
-
-
-
-
 
 (defun duplicate-line()
   (interactive)
