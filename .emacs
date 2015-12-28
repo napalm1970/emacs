@@ -1,4 +1,43 @@
+(setq cfg-var:packages
+  '(ace-jump-mode
+    company
+    company-anaconda
+    company-go
+    flycheck
+    flycheck-pos-tip
+    go-mode
+    helm
+    helm-gtags
+    helm-themes
+    magit
+    smartparens
+    ido-vertical-mode
+    ido-ubiquitous
+    ido-yes-or-no
+    lua-mode
+    shell-pop
+    smex
+    window-numbering
+    yasnippet
+    function-args
+    highlight-symbol
+    highlight-parentheses
+    ))
+
+
+(defun cfg:install-packages ()
+  (let ((pkgs (remove-if #'package-installed-p cfg-var:packages)))
+    (when pkgs
+      (message "%s" "Emacs is now refreshing its package database...")
+      (package-refresh-contents)
+      (message "%s" " done.")
+      (dolist (p cfg-var:packages)
+        (package-install p)))))
+
+
 (require 'package)
+(require 'cl)
+
 
 (when (< emacs-major-version 24)
   ;; For important compatibility libraries like cl-lib
@@ -6,6 +45,10 @@
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
+
+(cfg:install-packages)
+
+
 
 ;;(add-to-list 'load-path "/home/napalm/.emacs.d/")
  (add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
@@ -86,9 +129,9 @@
   '(ace-jump-mode-enable-mark-sync))
 (define-key global-map (kbd "C-x SPC") 'ace-jump-mode-pop-mark)
 
-(global-set-key (kbd "C-c SPC") ' ace-jump-word-mode)
-(global-set-key (kbd "C-c C-c SPC") ' ace-jump-char-mode)
-(global-set-key (kbd "C-c C-c C-c SPC") ' ace-jump-line-mode)
+(global-set-key (kbd "C-c SPC") 'ace-jump-word-mode)
+(global-set-key (kbd "C-c C-c SPC") 'ace-jump-char-mode)
+(global-set-key (kbd "C-c C-c C-c SPC") 'ace-jump-line-mode)
 
 
 
@@ -367,13 +410,11 @@
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
 
- (require 'auto-highlight-symbol)
-     (global-auto-highlight-symbol-mode t)
-
-;; (global-set-key (kbd "M-p") 'ace-window)
-;; (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-;; (setq aw-background nil)
-
+(require 'highlight-symbol)
+(global-set-key [(control f3)] 'highlight-symbol)
+(global-set-key [f3] 'highlight-symbol-next)
+(global-set-key [(shift f3)] 'highlight-symbol-prev)
+(global-set-key [(meta f3)] 'highlight-symbol-query-replace)
 
 (window-numbering-mode 1)
 
