@@ -9,6 +9,7 @@
     helm
     helm-gtags
     helm-themes
+    helm-go-package
     magit
     smartparens
     ido-vertical-mode
@@ -44,6 +45,8 @@
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
 (cfg:install-packages)
@@ -478,5 +481,9 @@
   (set (make-local-variable 'company-backends) '(company-go))
   ;; (company-mode)
   ))
+
+(eval-after-load 'go-mode
+  '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
+
 
 
