@@ -1,3 +1,5 @@
+;; Code
+
 (setq cfg-var:packages
   '(ace-jump-mode
     company
