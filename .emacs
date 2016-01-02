@@ -460,7 +460,7 @@
 
 (require 'go-mode)
 (add-hook 'before-save-hook 'gofmt-before-save)
-(load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
+;; (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
 ;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
 
 (add-hook 'go-mode-hook 'oracle)
