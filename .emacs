@@ -1,3 +1,5 @@
+;; Code
+
 (setq cfg-var:packages
   '(ace-jump-mode
     company
@@ -172,7 +174,7 @@
 ;; ;; (defalias 'yas/table-hash 'yas--table-hash)
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
-(yas--initialize)
+(yas/initialize)
 
 (defun duplicate-line()
   (interactive)
@@ -459,7 +461,7 @@
 
 (require 'go-mode)
 (add-hook 'before-save-hook 'gofmt-before-save)
-(load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
+;; (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
 ;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
 
 (add-hook 'go-mode-hook 'oracle)

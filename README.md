@@ -1,4 +1,2 @@
 # emacs
-# emacs
-# emacs
 # configs
