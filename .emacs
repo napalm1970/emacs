@@ -23,6 +23,7 @@
     function-args
     highlight-symbol
     highlight-parentheses
+    neotree
     ))
 
 
@@ -486,4 +487,5 @@
   '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
 
 
-
+  (require 'neotree)
+  (global-set-key [f8] 'neotree-toggle)
