@@ -174,7 +174,7 @@
 ;; ;; (defalias 'yas/table-hash 'yas--table-hash)
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
-(yas/initialize)
+(yas--initialize)
 
 (defun duplicate-line()
   (interactive)
@@ -464,6 +464,13 @@
 ;; (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
 ;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
 
+(require 'go-eldoc)
+(add-hook 'go-mode-hook 'go-eldoc-setup)
+
+(add-hook 'go-mode-hook '(lambda ()
+			   (local-set-key (kbd "C-c C-j") 'godef-jump)))
+
+
 (add-hook 'go-mode-hook 'oracle)
 
 (add-hook 'go-mode-hook '(lambda ()
@@ -491,3 +498,9 @@
 
   (require 'neotree)
   (global-set-key [f8] 'neotree-toggle)
+
+(require 'org-install)
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(setq org-log-done t)
