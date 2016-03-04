@@ -269,6 +269,7 @@ With a prefix argument, insert a newline above the current line."
 	(global-semantic-highlight-edits-mode 1)
 	(semantic-enable-code-helpers)
 	(require 'semantic/ia)
+	(add-to-list 'company-backends 'company-c-headers)
 	))
 
 (add-hook 'c-mode-hook '(lambda ()
@@ -288,6 +289,7 @@ With a prefix argument, insert a newline above the current line."
 	(global-semantic-highlight-edits-mode 1)
 	(semantic-enable-code-helpers)
 	(require 'semantic/ia)
+	(add-to-list 'company-backends 'company-c-headers)
 	))
 
 (global-ede-mode t)
