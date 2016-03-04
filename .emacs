@@ -26,6 +26,7 @@
     highlight-symbol
     highlight-parentheses
     neotree
+    undo-tree
     ))
 
 
@@ -58,14 +59,7 @@
 
 ;;(add-to-list 'load-path "/home/napalm/.emacs.d/")
  (add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
-;; (add-to-list 'load-path "/home/napalm/.emacs.d/elpa/ido-ubiquitous")
-;; (add-to-list 'load-path "/home/napalm/.emacs.d/elpa/smex")
-;; (add-to-list 'load-path "/home/napalm/.emacs.d/elpa/lua-mode")
-;; (add-to-list 'load-path "/home/napalm/.emacs.d/elpa/dash-20151021.113")
-;; (add-to-list 'load-path "/home/napalm/.emacs.d/elpa/smartparens-20151129.1003")
-
-
-;; (add-hook 'after-init-hook 'global-company-mode)
+(add-hook 'after-init-hook 'global-company-mode)
 
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
@@ -97,7 +91,7 @@
 (ido-everywhere 1)
 
 (require 'ido-ubiquitous)
-(ido-ubiquitous-mode 1)
+3(ido-ubiquitous-mode 1)
 
 (require 'ido-yes-or-no)
 (ido-yes-or-no-mode 1)
@@ -229,6 +223,33 @@
     (next-line)))
 
 (global-set-key (kbd "C-c c l ") 'comment-or-uncomment-region-or-line)
+
+(defun vi-open-line-above ()
+  "Insert a newline above the current line and put point at beginning."
+  (interactive)
+  (unless (bolp)
+    (beginning-of-line))
+  (newline)
+  (forward-line -1)
+  (indent-according-to-mode))
+
+(defun vi-open-line-below ()
+  "Insert a newline below the current line and put point at beginning."
+  (interactive)
+  (unless (eolp)
+    (end-of-line))
+  (newline-and-indent))
+
+(defun vi-open-line (&optional abovep)
+  "Insert a newline below the current line and put point at beginning.
+With a prefix argument, insert a newline above the current line."
+  (interactive "P")
+  (if abovep
+      (vi-open-line-above)
+    (vi-open-line-below)))
+
+(global-set-key (kbd "C-S-o") 'vi-open-line-above)
+(global-set-key (kbd "C-o") 'vi-open-line-below)
 
 
 (add-hook 'c++-mode-hook '(lambda ()
@@ -504,3 +525,10 @@
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
+
+(global-set-key (kbd "C-M-z") 'switch-window)
+
+(require 'undo-tree)
+(global-undo-tree-mode)
+(global-set-key (kbd "C-/") 'undo-tree-undo)
+(global-set-key (kbd "C-?") 'undo-tree-redo)
