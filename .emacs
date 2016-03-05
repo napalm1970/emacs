@@ -27,6 +27,7 @@
     highlight-parentheses
     neotree
     undo-tree
+    nlinum
     ))
 
 
