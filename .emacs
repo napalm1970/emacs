@@ -30,6 +30,16 @@
     ))
 
 
+
+(defun system-is-linux ()
+  (string-equal system-type "gnu/linux")
+  )
+
+(when (system-is-linux)
+  (require 'server)
+  (unless (server-running-p)
+    (server-start)))
+
 (defun cfg:install-packages ()
   (let ((pkgs (remove-if #'package-installed-p cfg-var:packages)))
     (when pkgs
@@ -74,6 +84,10 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
+;; Delete selection
+(delete-selection-mode t)
+(tooltip-mode -1)
+(setq use-dialog-box nil)
 
 (require 'smex) ;; Not needed if you use package.el
 (smex-initialize) ;; Can be omitted. This might cause a (minimal) delay
@@ -252,6 +266,125 @@ With a prefix argument, insert a newline above the current line."
 (global-set-key (kbd "C-o") 'vi-open-line-below)
 
 
+(defun my-mark-current-word (&optional arg allow-extend)
+    "Put point at beginning of current word, set mark at end."
+    (interactive "p\np")
+    (setq arg (if arg arg 1))
+    (if (and allow-extend
+             (or (and (eq last-command this-command) (mark t))
+                 (region-active-p)))
+        (set-mark
+         (save-excursion
+           (when (< (mark) (point))
+             (setq arg (- arg)))
+           (goto-char (mark))
+           (forward-word arg)
+           (point)))
+      (let ((wbounds (bounds-of-thing-at-point 'word)))
+        (unless (consp wbounds)
+          (error "No word at point"))
+        (if (>= arg 0)
+            (goto-char (car wbounds))
+          (goto-char (cdr wbounds)))
+        (push-mark (save-excursion
+                     (forward-word arg)
+                     (point)))
+        (activate-mark))))
+
+(defun xah-select-current-line ()
+  "Select current line.
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2015-02-07
+"
+  (interactive)
+  (end-of-line)
+  (set-mark (line-beginning-position)))
+
+
+(defun xah-select-current-block ()
+  "Select the current block of text between blank lines.
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2015-02-07
+"
+  (interactive)
+  (let (p1 p2)
+    (progn
+      (if (re-search-backward "\n[ \t]*\n" nil "move")
+          (progn (re-search-forward "\n[ \t]*\n")
+                 (setq p1 (point)))
+        (setq p1 (point)))
+      (if (re-search-forward "\n[ \t]*\n" nil "move")
+          (progn (re-search-backward "\n[ \t]*\n")
+                 (setq p2 (point)))
+        (setq p2 (point))))
+    (set-mark p1)))
+
+(defun xah-select-text-in-quote ()
+  "Select text between the nearest left and right delimiters.
+Delimiters here includes the following chars: \"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕（）
+This command does not properly deal with nested brackets.
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2015-05-16"
+  (interactive)
+  (let (ξp1
+        ξp2
+        (ξskipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕（）"))
+    (skip-chars-backward ξskipChars)
+    (setq ξp1 (point))
+    (skip-chars-forward ξskipChars)
+    (setq ξp2 (point))
+    (set-mark ξp1)))
+
+(defun xah-semnav-up (φarg)
+"Called by `xah-extend-selection'.
+
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2015-11-13.
+Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2"
+  (interactive "p")
+  (when (nth 3 (syntax-ppss))
+    (if (> φarg 0)
+        (progn
+          (skip-syntax-forward "^\"")
+          (goto-char (1+ (point)))
+          (setq φarg (1- φarg) ))
+      (skip-syntax-backward "^\"")
+      (goto-char (1- (point)))
+      (setq φarg (1+ φarg) )))
+  (up-list φarg))
+
+(defun xah-extend-selection (φarg &optional φincremental-p)
+  "Select the current word.
+Subsequent calls expands the selection to larger semantic unit.
+
+This command works mostly in lisp syntax.
+URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
+Version 2015-11-13.
+Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
+  (interactive
+   (list (prefix-numeric-value current-prefix-arg)
+         (or (use-region-p)
+             (eq last-command this-command))))
+  (if φincremental-p
+      (progn
+        (xah-semnav-up (- φarg))
+        (forward-sexp)
+        (mark-sexp -1))
+    (if (> φarg 1)
+        (xah-extend-selection (1- φarg) t)
+      (if (looking-at "\\=\\(\\s_\\|\\sw\\)*\\_>")
+          (goto-char (match-end 0))
+        (unless (memq (char-before) '(?\) ?\"))
+          (forward-sexp)))
+      (mark-sexp -1))))
+
+
+(global-set-key (kbd "C-M-5") 'xah-extend-selection)
+(global-set-key (kbd "C-M-6") 'xah-select-current-line)
+(global-set-key (kbd "C-M-7") 'xah-select-current-block)
+(global-set-key (kbd "M-\"") 'xah-select-text-in-quote)
+
+
 (add-hook 'c++-mode-hook '(lambda ()
         (setq ac-sources (append '(ac-source-semantic) ac-sources))
         (local-set-key (kbd "RET") 'newline-and-indent)
@@ -426,9 +559,7 @@ With a prefix argument, insert a newline above the current line."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 122 :width normal))))
-
- )
+ '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 122 :width normal)))))
 
 
 
@@ -495,13 +626,10 @@ With a prefix argument, insert a newline above the current line."
 
 
 (add-hook 'go-mode-hook 'oracle)
-
 (add-hook 'go-mode-hook '(lambda ()
 			   (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)))
-
 (add-hook 'go-mode-hook '(lambda ()
 			   (local-set-key (kbd "C-c C-g") 'go-goto-imports)))
-
 (add-hook 'go-mode-hook '(lambda ()
 			   (local-set-key (kbd "C-c C-k") 'godoc)))
 
@@ -519,8 +647,8 @@ With a prefix argument, insert a newline above the current line."
   '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
 
 
-  (require 'neotree)
-  (global-set-key [f8] 'neotree-toggle)
+(require 'neotree)
+(global-set-key [f8] 'neotree-toggle)
 
 (require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
@@ -534,3 +662,11 @@ With a prefix argument, insert a newline above the current line."
 (global-undo-tree-mode)
 (global-set-key (kbd "C-/") 'undo-tree-undo)
 (global-set-key (kbd "C-?") 'undo-tree-redo)
+
+(require 'multiple-cursors)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
+
+(nlinum-mode t)
+
