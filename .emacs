@@ -182,7 +182,7 @@
 ;; ;; (defalias 'yas/table-hash 'yas--table-hash)
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
-(yas--initialize)
+(yas/initialize)
 
 (defun duplicate-line()
   (interactive)
