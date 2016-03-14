@@ -28,6 +28,7 @@
     neotree
     undo-tree
     nlinum
+    powerline
     ))
 
 
