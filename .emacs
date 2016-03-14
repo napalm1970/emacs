@@ -706,5 +706,14 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 			    (eldoc-mode)))
 
 
-;;(require 'evil)
-;; (evil-mode 1)
+;; Powerline
+
+(require 'powerline)
+(powerline-default-theme)
+
+;; (powerline-center-theme)
+;; (powerline-center-evil-theme)
+;; (powerline-vim-theme)
+;; (powerline-nano-theme)
+
+(global-set-key (kbd "M-i") 'helm-swoop)
