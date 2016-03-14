@@ -59,8 +59,11 @@
   (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
 (add-to-list 'package-archives
 	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+;; (add-to-list 'package-archives
+;;              '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
+             '("org" . "https://orgmode.org/elpa/"))
+
 (package-initialize)
 
 (cfg:install-packages)
@@ -68,7 +71,7 @@
 
 
 ;;(add-to-list 'load-path "/home/napalm/.emacs.d/")
- (add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
+(add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
 (add-hook 'after-init-hook 'global-company-mode)
 
 
@@ -93,8 +96,8 @@
 (smex-initialize) ;; Can be omitted. This might cause a (minimal) delay
 					; when Smex is auto-initialized on its first run.
 
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+;; (global-set-key (kbd "M-x") 'smex)
+;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 ;; This is your old M-x.
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
@@ -447,8 +450,7 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (require 'semantic/ia)
 ;; (semantic-add-system-include "~/exp/include/boost_1_37" 'c++-mode)
 
-
-(require 'helm-mode)
+(require 'helm)
 (require 'helm-config)
 
 (helm-autoresize-mode 1)
@@ -456,8 +458,26 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (global-set-key (kbd"C-c o") 'helm-occur)
 (global-set-key (kbd"C-x b") 'helm-buffers-list)
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
-;; (global-set-key (kbd "M-x") 'helm-M-x)
-;; (global-set-key (kbd "C-X C-f") 'helm-find-files)
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "C-X C-f") 'helm-find-files)
+
+(global-set-key (kbd "C-c h") 'helm-command-prefix)
+(global-unset-key (kbd "C-x c"))
+
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
+(define-key helm-map (kbd "C-z")  'helm-select-ation)
+
+(setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
+      helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
+      helm-ff-search-library-in-sexp        t ; search for library in `require' and `declare-function' sexp.
+      helm-scroll-amount                    8 ; scroll 8 lines other window using M-<next>/M-<prior>
+      helm-ff-file-name-history-use-recentf t)
+(setq helm-M-x-fuzzy-match t)
+
+
+(require 'helm)
+
 
 
 (require 'compile)
@@ -571,10 +591,10 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 
 
 (require 'highlight-symbol)
-(global-set-key [(control f3)] 'highlight-symbol)
-(global-set-key [f3] 'highlight-symbol-next)
-(global-set-key [(shift f3)] 'highlight-symbol-prev)
-(global-set-key [(meta f3)] 'highlight-symbol-query-replace)
+(global-set-key [(control f9)] 'highlight-symbol)
+(global-set-key [f9] 'highlight-symbol-next)
+(global-set-key [(shift f9)] 'highlight-symbol-prev)
+(global-set-key [(meta f9)] 'highlight-symbol-query-replace)
 
 (window-numbering-mode 1)
 
@@ -670,3 +690,19 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 
 (nlinum-mode t)
 
+(recentf-mode t)
+
+(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+  ;; Replace "sbcl" with the path to your implementation
+(setq inferior-lisp-program "sbcl")
+
+(slime-setup '(slime-company))
+
+
+(add-to-list 'auto-mode-alist '("\\.cl\\'" . lisp-mode))
+(add-hook 'lisp-mode-hook (lambda ()
+			    (eldoc-mode)))
+
+
+;;(require 'evil)
+;; (evil-mode 1)
