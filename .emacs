@@ -12,6 +12,7 @@
     helm-gtags
     helm-themes
     helm-go-package
+    helm-swoop
     magit
     smartparens
     ido-vertical-mode
