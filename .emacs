@@ -27,6 +27,7 @@
     highlight-parentheses
     neotree
     undo-tree
+    nlinum
     ))
 
 
@@ -185,7 +186,7 @@
 ;; ;; (defalias 'yas/table-hash 'yas--table-hash)
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
-(yas--initialize)
+(yas/initialize)
 
 (defun duplicate-line()
   (interactive)
@@ -633,38 +634,38 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (add-hook 'python-mode-hook 'eldoc-mode)
 (setq python-shell-virtualenv-path "/usr/bin/virtualenv")
 
-(require 'go-mode)
-(add-hook 'before-save-hook 'gofmt-before-save)
+;; (require 'go-mode)
+;; (add-hook 'before-save-hook 'gofmt-before-save)
 ;; (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
 ;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
 
-(require 'go-eldoc)
-(add-hook 'go-mode-hook 'go-eldoc-setup)
+;; (require 'go-eldoc)
+;; (add-hook 'go-mode-hook 'go-eldoc-setup)
 
-(add-hook 'go-mode-hook '(lambda ()
-			   (local-set-key (kbd "C-c C-j") 'godef-jump)))
-
-
-(add-hook 'go-mode-hook 'oracle)
-(add-hook 'go-mode-hook '(lambda ()
-			   (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)))
-(add-hook 'go-mode-hook '(lambda ()
-			   (local-set-key (kbd "C-c C-g") 'go-goto-imports)))
-(add-hook 'go-mode-hook '(lambda ()
-			   (local-set-key (kbd "C-c C-k") 'godoc)))
+;; (add-hook 'go-mode-hook '(lambda ()
+;; 			   (local-set-key (kbd "C-c C-j") 'godef-jump)))
 
 
-(add-to-list 'load-path "/home/napalm/go/src/github.com/dougm/goflymake")
-(require 'go-flycheck)
+;; (add-hook 'go-mode-hook 'oracle)
+;; (add-hook 'go-mode-hook '(lambda ()
+;; 			   (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)))
+;; (add-hook 'go-mode-hook '(lambda ()
+;; 			   (local-set-key (kbd "C-c C-g") 'go-goto-imports)))
+;; (add-hook 'go-mode-hook '(lambda ()
+;; 			   (local-set-key (kbd "C-c C-k") 'godoc)))
 
-(add-hook 'go-mode-hook 'company-mode)
-(add-hook 'go-mode-hook (lambda ()
-  (set (make-local-variable 'company-backends) '(company-go))
-  ;; (company-mode)
-  ))
 
-(eval-after-load 'go-mode
-  '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
+;; (add-to-list 'load-path "/home/napalm/go/src/github.com/dougm/goflymake")
+;; (require 'go-flycheck)
+
+;; (add-hook 'go-mode-hook 'company-mode)
+;; (add-hook 'go-mode-hook (lambda ()
+;;   (set (make-local-variable 'company-backends) '(company-go))
+;;   ;; (company-mode)
+;;   ))
+
+;; (eval-after-load 'go-mode
+;;   '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
 
 
 (require 'neotree)
