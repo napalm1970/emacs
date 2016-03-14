@@ -76,7 +76,8 @@
 ;;(add-to-list 'load-path "/home/napalm/.emacs.d/")
 (add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
 (add-hook 'after-init-hook 'global-company-mode)
-
+(define-key company-active-map (kbd "C-n") 'company-select-next)
+(define-key company-active-map (kbd "C-p") 'company-select-previous)
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; (load-theme 'manoj-dark t)
@@ -470,6 +471,7 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 (define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
 (define-key helm-map (kbd "C-z")  'helm-select-ation)
+(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
 
 (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
       helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
@@ -622,6 +624,8 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (add-hook 'python-mode-hook 'anaconda-mode)
 (add-hook 'python-mode-hook 'company-mode)
 (add-hook 'python-mode-hook 'eldoc-mode)
+
+
 
 (eval-after-load "company"
  '(progn
