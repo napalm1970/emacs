@@ -1,3 +1,5 @@
 .*
 /*
 !.emacs
+!global_settings.el
+!init_install_package.el

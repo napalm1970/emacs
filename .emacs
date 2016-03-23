@@ -1,139 +1,13 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Code
 
-(setq cfg-var:packages
-  '(ace-jump-mode
-    company
-    company-anaconda
-    company-go
-    flycheck
-    flycheck-pos-tip
-    go-mode
-    helm
-    helm-gtags
-    helm-themes
-    helm-go-package
-    helm-swoop
-    magit
-    smartparens
-    ido-vertical-mode
-    ido-ubiquitous
-    ido-yes-or-no
-    lua-mode
-    shell-pop
-    smex
-    window-numbering
-    yasnippet
-    function-args
-    highlight-symbol
-    highlight-parentheses
-    neotree
-    undo-tree
-    nlinum
-    powerline
-    ))
+(load "~/.emacs.d/init_install_package")
+(load "~/.emacs.d/global_settings")
 
 
-
-(defun system-is-linux ()
-  (string-equal system-type "gnu/linux")
-  )
-
-(when (system-is-linux)
-  (require 'server)
-  (unless (server-running-p)
-    (server-start)))
-
-(defun cfg:install-packages ()
-  (let ((pkgs (remove-if #'package-installed-p cfg-var:packages)))
-    (when pkgs
-      (message "%s" "Emacs is now refreshing its package database...")
-      (package-refresh-contents)
-      (message "%s" " done.")
-      (dolist (p cfg-var:packages)
-        (package-install p)))))
-
-
-(require 'package)
-(require 'cl)
-
-
-(when (< emacs-major-version 24)
-  ;; For important compatibility libraries like cl-lib
-  (add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/")))
-(add-to-list 'package-archives
-	     '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-;; (add-to-list 'package-archives
-;;              '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives
-             '("org" . "https://orgmode.org/elpa/"))
-
-(package-initialize)
-
-(cfg:install-packages)
-
-
-
-;;(add-to-list 'load-path "/home/napalm/.emacs.d/")
-(add-to-list 'load-path "/home/napalm/.emacs.d/lisp")
-(add-hook 'after-init-hook 'global-company-mode)
-(define-key company-active-map (kbd "C-n") 'company-select-next)
-(define-key company-active-map (kbd "C-p") 'company-select-previous)
-
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-;; (load-theme 'manoj-dark t)
-(load-theme 'tsdh-dark t)
-
-(require 'smartparens-config) 
-(smartparens-global-mode t)
-
-(setq inhibit-splash-screen t)
-
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-(menu-bar-mode -1)
-;; Delete selection
-(delete-selection-mode t)
-(tooltip-mode -1)
-(setq use-dialog-box nil)
-
-(require 'smex) ;; Not needed if you use package.el
-(smex-initialize) ;; Can be omitted. This might cause a (minimal) delay
-					; when Smex is auto-initialized on its first run.
-
-;; (global-set-key (kbd "M-x") 'smex)
-;; (global-set-key (kbd "M-X") 'smex-major-mode-commands)
 ;; This is your old M-x.
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
-(require 'ido-vertical-mode)
-(ido-mode t)
-(setq ido-vertical-show-count t)
-(setq ido-vertical-define-keys 'C-n-C-p-up-and-down)
-(ido-everywhere 1)
-
-(require 'ido-ubiquitous)
-3(ido-ubiquitous-mode 1)
-
-(require 'ido-yes-or-no)
-(ido-yes-or-no-mode 1)
-
-(setq ido-use-faces t)
-(set-face-attribute 'ido-vertical-first-match-face nil
-                    :background nil
-                    :foreground "orange")
-(set-face-attribute 'ido-vertical-only-match-face nil
-                    :background nil
-                    :foreground nil)
-(set-face-attribute 'ido-vertical-match-face nil
-                    :foreground nil)
-(ido-vertical-mode 1)
-
-
-;; (setq show-paren-style 'expression)
-;; (show-paren-mode 1)
-;; (electric-pair-mode 1)
-
-(global-hl-line-mode 1)
 
 (autoload
   'ace-jump-mode
@@ -190,6 +64,8 @@
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
 (yas/initialize)
+
+(global-set-key (kbd "C-c k") 'yas/expand)
 
 (defun duplicate-line()
   (interactive)
@@ -459,19 +335,20 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 
 (helm-autoresize-mode 1)
 
-(global-set-key (kbd"C-c o") 'helm-occur)
+;; (global-set-key (kbd"C-c o") 'helm-occur)
 (global-set-key (kbd"C-x b") 'helm-buffers-list)
 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-X C-f") 'helm-find-files)
+(global-set-key (kbd "M-i") 'helm-swoop)
 
 (global-set-key (kbd "C-c h") 'helm-command-prefix)
 (global-unset-key (kbd "C-x c"))
 
 (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-i") 'helm-execute-persistent-action)
-(define-key helm-map (kbd "C-z")  'helm-select-ation)
-(define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+(define-key helm-map (kbd "C-z")  'helm-select-action)
+
+
 
 (setq helm-split-window-in-side-p           t ; open helm buffer inside current window, not occupy whole other window
       helm-move-to-line-cycle-in-source     t ; move to end or beginning of source when reaching top or bottom of source.
@@ -480,10 +357,19 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
       helm-ff-file-name-history-use-recentf t)
 (setq helm-M-x-fuzzy-match t)
 
+(setq helm-buffers-fuzzy-matching t
+      helm-recentf-fuzzy-match    t)
 
-(require 'helm)
+
+(when (executable-find "ack-grep")
+  (setq helm-grep-default-command "ack-grep -Hn --no-group --no-color %e %p %f"
+        helm-grep-default-recurse-command "ack-grep -H --no-group --no-color %e %p %f"))
 
 
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match    t)
+
+(helm-mode 1)
 
 (require 'compile)
 (setq compilation-disable-input nil)
@@ -534,9 +420,6 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
   (flycheck-pos-tip-mode))
 
 
-
-;; (set-face-background 'hl-line "#dcdcdc")
-
 (add-hook 'c-mode-hook 'projectile-mode)
 (add-hook 'c++-mode-hook 'projectile-mode)
 (add-hook 'c++-mode-hook 'helm-gtags-mode)
@@ -552,40 +435,6 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 	     "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stddef.h")
 
 (set-default 'semantic-case-fold t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(column-number-mode t)
- '(display-time-mode t)
- '(package-archives
-   (quote
-    (("gnu" . "http://elpa.gnu.org/packages/")
-     ("melpa-stable" . "http://stable.melpa.org/packages/")
-     ("Marmalaade" . "http://marmalade-repo.org/packages/"))))
- '(shell-pop-default-directory "/Users/kyagi/git")
- '(shell-pop-full-span t)
- '(shell-pop-shell-type
-   (quote
-    ("shell" "*shell*"
-     (lambda nil
-       (shell shell-pop-term-shell)))))
- '(shell-pop-term-shell "/bin/bash")
- '(shell-pop-universal-key "C-x t")
- '(shell-pop-window-position "bottom")
- '(shell-pop-window-size 30)
- '(show-paren-mode t)
- '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 122 :width normal)))))
-
 
 
 ;;; Lua mode
@@ -594,7 +443,6 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
 (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 
-
 (require 'highlight-symbol)
 (global-set-key [(control f9)] 'highlight-symbol)
 (global-set-key [f9] 'highlight-symbol-next)
@@ -602,7 +450,6 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (global-set-key [(meta f9)] 'highlight-symbol-query-replace)
 
 (window-numbering-mode 1)
-
 
 (require 'highlight-parentheses)
 (define-globalized-minor-mode global-highlight-parentheses-mode
@@ -615,16 +462,9 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 
 (require 'shell-pop)
 
-
-
-(autoload 'lua-mode "lua-mode" "Lua editing mode." t)
-(add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
-(add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
-
 (add-hook 'python-mode-hook 'anaconda-mode)
 (add-hook 'python-mode-hook 'company-mode)
 (add-hook 'python-mode-hook 'eldoc-mode)
-
 
 
 (eval-after-load "company"
@@ -640,42 +480,6 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (add-hook 'python-mode-hook 'eldoc-mode)
 (setq python-shell-virtualenv-path "/usr/bin/virtualenv")
 
-;; (require 'go-mode)
-;; (add-hook 'before-save-hook 'gofmt-before-save)
-;; (load "$GOPATH/src/golang.org/x/tools/cmd/oracle/oracle.el")
-;; /home/napalm/go/src/golang.org/x/tools/cmd/oracle/oracle.el
-
-;; (require 'go-eldoc)
-;; (add-hook 'go-mode-hook 'go-eldoc-setup)
-
-;; (add-hook 'go-mode-hook '(lambda ()
-;; 			   (local-set-key (kbd "C-c C-j") 'godef-jump)))
-
-
-;; (add-hook 'go-mode-hook 'oracle)
-;; (add-hook 'go-mode-hook '(lambda ()
-;; 			   (local-set-key (kbd "C-c C-r") 'go-remove-unused-imports)))
-;; (add-hook 'go-mode-hook '(lambda ()
-;; 			   (local-set-key (kbd "C-c C-g") 'go-goto-imports)))
-;; (add-hook 'go-mode-hook '(lambda ()
-;; 			   (local-set-key (kbd "C-c C-k") 'godoc)))
-
-
-;; (add-to-list 'load-path "/home/napalm/go/src/github.com/dougm/goflymake")
-;; (require 'go-flycheck)
-
-;; (add-hook 'go-mode-hook 'company-mode)
-;; (add-hook 'go-mode-hook (lambda ()
-;;   (set (make-local-variable 'company-backends) '(company-go))
-;;   ;; (company-mode)
-;;   ))
-
-;; (eval-after-load 'go-mode
-;;   '(substitute-key-definition 'go-import-add 'helm-go-package go-mode-map))
-
-
-(require 'neotree)
-(global-set-key [f8] 'neotree-toggle)
 
 (require 'org-install)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
@@ -683,23 +487,14 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (define-key global-map "\C-ca" 'org-agenda)
 (setq org-log-done t)
 
-(global-set-key (kbd "C-M-z") 'switch-window)
-
-(require 'undo-tree)
-(global-undo-tree-mode)
-(global-set-key (kbd "C-/") 'undo-tree-undo)
-(global-set-key (kbd "C-?") 'undo-tree-redo)
 
 (require 'multiple-cursors)
 (global-set-key (kbd "C->") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
 (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 
-(nlinum-mode t)
 
-(recentf-mode t)
-
-(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+(load (expand-file-name "~/quicklisp/slime-helper.el"))
   ;; Replace "sbcl" with the path to your implementation
 (setq inferior-lisp-program "sbcl")
 
@@ -711,14 +506,30 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 			    (eldoc-mode)))
 
 
-;; Powerline
-
-(require 'powerline)
-(powerline-default-theme)
-
-;; (powerline-center-theme)
-;; (powerline-center-evil-theme)
-;; (powerline-vim-theme)
-;; (powerline-nano-theme)
-
 (global-set-key (kbd "M-i") 'helm-swoop)
+(global-set-key (kbd "C-c f g") 'grep-find)
+(global-set-key (kbd "C-c r f") 'recentf-open-files)
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(auto-save-file-name-transforms (quote ((".*" "~/.emacs.d/autosaves/\\1" t))))
+ '(backup-directory-alist (quote ((".*" . "~/.emacs.d/backups/"))))
+ '(column-number-mode t)
+ '(display-time-mode t)
+ '(tool-bar-mode nil))
+
+;; create the autosave dir if necessary, since emacs won't.
+(make-directory "~/.emacs.d/autosaves/" t)
+
+(recentf-mode t)
+(recentf-open-files)
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 120 :width normal)))))
