@@ -1,0 +1,7 @@
+(add-hook 'doc-view-mode-hook  (lambda ()
+ (local-set-key (kbd "<f2>") 'bookmark-set)
+ (local-set-key (kbd "<f3>") 'bookmark-jump)
+ ;; (split-window-right)
+ (bookmark-bmenu-list)
+ (delete-other-windows ) 
+ ))

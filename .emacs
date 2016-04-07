@@ -2,7 +2,13 @@
 ;; Code
 
 (load "~/.emacs.d/init_install_package")
+(load "~/.emacs.d/bookmarks-settings.el")
 (load "~/.emacs.d/global_settings")
+(load "~/.emacs.d/function")
+(load "~/.emacs.d/doc-view-mode.el")
+(load "~/.emacs.d/c-mode-settings.el")
+(load "~/.emacs.d/c++-mode-settings.el")
+
 
 
 ;; This is your old M-x.
@@ -64,260 +70,12 @@
 ;; ;; (delq 'ac-source-yasnippet ac-sources)
 ;; ;;      
 (yas/initialize)
-
 (global-set-key (kbd "C-c k") 'yas/expand)
 
-(defun duplicate-line()
-  (interactive)
-  (move-beginning-of-line 1)
-  (kill-line)
-  (yank)
-  (open-line 1)
-  (next-line 1)
-  (yank)
-  )
-
-(global-set-key (kbd "C-c d l") 'duplicate-line)
-
-(defun quick-copy-line ()
-  "Copy the whole line that point is on and move to the beginning of the next line.
-    Consecutive calls to this command append each line to the
-    kill-ring."
-  (interactive)
-  (let ((beg (line-beginning-position 1))
-	(end (line-beginning-position 2)))
-    (if (eq last-command 'quick-copy-line)
-	(kill-append (buffer-substring beg end) (< end beg))
-      (kill-new (buffer-substring beg end))))
-  (beginning-of-line 2))
-
-(global-set-key (kbd "C-c q l") 'quick-copy-line)
-
-(defun my--copy-word()
-  (interactive)
-  (forward-word)
-  (setq beg (point))
-  ;;  (message "Begin %d" beg)
-  (call-interactively 'set-mark-command)
-  (backward-word)
-  (setq end (point))
-  ;;(message "End %d" end)
-  (kill-ring-save beg end)
-  )
-
-(global-set-key (kbd "C-c c w") 'my--copy-word)
-
-;;; Comment line or region
-
-(defun comment-or-uncomment-region-or-line ()
-  "Comments or uncomments the region or the current line if there's no active region."
-  (interactive)
-  (let (beg end)
-    (if (region-active-p)
-	(setq beg (region-beginning) end (region-end))
-      (setq beg (line-beginning-position) end (line-end-position)))
-    (comment-or-uncomment-region beg end)
-    (next-line)))
-
-(global-set-key (kbd "C-c c l ") 'comment-or-uncomment-region-or-line)
-
-(defun vi-open-line-above ()
-  "Insert a newline above the current line and put point at beginning."
-  (interactive)
-  (unless (bolp)
-    (beginning-of-line))
-  (newline)
-  (forward-line -1)
-  (indent-according-to-mode))
-
-(defun vi-open-line-below ()
-  "Insert a newline below the current line and put point at beginning."
-  (interactive)
-  (unless (eolp)
-    (end-of-line))
-  (newline-and-indent))
-
-(defun vi-open-line (&optional abovep)
-  "Insert a newline below the current line and put point at beginning.
-With a prefix argument, insert a newline above the current line."
-  (interactive "P")
-  (if abovep
-      (vi-open-line-above)
-    (vi-open-line-below)))
-
-(global-set-key (kbd "C-S-o") 'vi-open-line-above)
-(global-set-key (kbd "C-o") 'vi-open-line-below)
 
 
-(defun my-mark-current-word (&optional arg allow-extend)
-    "Put point at beginning of current word, set mark at end."
-    (interactive "p\np")
-    (setq arg (if arg arg 1))
-    (if (and allow-extend
-             (or (and (eq last-command this-command) (mark t))
-                 (region-active-p)))
-        (set-mark
-         (save-excursion
-           (when (< (mark) (point))
-             (setq arg (- arg)))
-           (goto-char (mark))
-           (forward-word arg)
-           (point)))
-      (let ((wbounds (bounds-of-thing-at-point 'word)))
-        (unless (consp wbounds)
-          (error "No word at point"))
-        (if (>= arg 0)
-            (goto-char (car wbounds))
-          (goto-char (cdr wbounds)))
-        (push-mark (save-excursion
-                     (forward-word arg)
-                     (point)))
-        (activate-mark))))
-
-(defun xah-select-current-line ()
-  "Select current line.
-URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
-Version 2015-02-07
-"
-  (interactive)
-  (end-of-line)
-  (set-mark (line-beginning-position)))
 
 
-(defun xah-select-current-block ()
-  "Select the current block of text between blank lines.
-URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
-Version 2015-02-07
-"
-  (interactive)
-  (let (p1 p2)
-    (progn
-      (if (re-search-backward "\n[ \t]*\n" nil "move")
-          (progn (re-search-forward "\n[ \t]*\n")
-                 (setq p1 (point)))
-        (setq p1 (point)))
-      (if (re-search-forward "\n[ \t]*\n" nil "move")
-          (progn (re-search-backward "\n[ \t]*\n")
-                 (setq p2 (point)))
-        (setq p2 (point))))
-    (set-mark p1)))
-
-(defun xah-select-text-in-quote ()
-  "Select text between the nearest left and right delimiters.
-Delimiters here includes the following chars: \"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕（）
-This command does not properly deal with nested brackets.
-URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
-Version 2015-05-16"
-  (interactive)
-  (let (ξp1
-        ξp2
-        (ξskipChars "^\"<>(){}[]“”‘’‹›«»「」『』【】〖〗《》〈〉〔〕（）"))
-    (skip-chars-backward ξskipChars)
-    (setq ξp1 (point))
-    (skip-chars-forward ξskipChars)
-    (setq ξp2 (point))
-    (set-mark ξp1)))
-
-(defun xah-semnav-up (φarg)
-"Called by `xah-extend-selection'.
-
-URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
-Version 2015-11-13.
-Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2"
-  (interactive "p")
-  (when (nth 3 (syntax-ppss))
-    (if (> φarg 0)
-        (progn
-          (skip-syntax-forward "^\"")
-          (goto-char (1+ (point)))
-          (setq φarg (1- φarg) ))
-      (skip-syntax-backward "^\"")
-      (goto-char (1- (point)))
-      (setq φarg (1+ φarg) )))
-  (up-list φarg))
-
-(defun xah-extend-selection (φarg &optional φincremental-p)
-  "Select the current word.
-Subsequent calls expands the selection to larger semantic unit.
-
-This command works mostly in lisp syntax.
-URL `http://ergoemacs.org/emacs/modernization_mark-word.html'
-Version 2015-11-13.
-Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
-  (interactive
-   (list (prefix-numeric-value current-prefix-arg)
-         (or (use-region-p)
-             (eq last-command this-command))))
-  (if φincremental-p
-      (progn
-        (xah-semnav-up (- φarg))
-        (forward-sexp)
-        (mark-sexp -1))
-    (if (> φarg 1)
-        (xah-extend-selection (1- φarg) t)
-      (if (looking-at "\\=\\(\\s_\\|\\sw\\)*\\_>")
-          (goto-char (match-end 0))
-        (unless (memq (char-before) '(?\) ?\"))
-          (forward-sexp)))
-      (mark-sexp -1))))
-
-
-(global-set-key (kbd "C-M-5") 'xah-extend-selection)
-(global-set-key (kbd "C-M-6") 'xah-select-current-line)
-(global-set-key (kbd "C-M-7") 'xah-select-current-block)
-(global-set-key (kbd "M-\"") 'xah-select-text-in-quote)
-
-
-(add-hook 'c++-mode-hook '(lambda ()
-        (setq ac-sources (append '(ac-source-semantic) ac-sources))
-        (local-set-key (kbd "RET") 'newline-and-indent)
-        (linum-mode t)
-        (semantic-mode t)
-	(global-ede-mode)
-	(global-semanticdb-minor-mode 1)
-	(global-semantic-idle-scheduler-mode 1)
-	(global-semantic-idle-completions-mode 1)
-	(global-semantic-idle-summary-mode 1)
-	;; (global-semantic-idle-local-symbol-highlight-mode 1)
-	(global-semantic-decoration-mode)
-	(global-semantic-highlight-func-mode)
-	(global-semantic-show-unmatched-syntax-mode t)
-	(global-semantic-highlight-edits-mode 1)
-	(semantic-enable-code-helpers)
-	(require 'semantic/ia)
-	(add-to-list 'company-backends 'company-c-headers)
-	))
-
-(add-hook 'c-mode-hook '(lambda ()
-        (setq ac-sources (append '(ac-source-semantic) ac-sources))
-        (local-set-key (kbd "RET") 'newline-and-indent)
-        (linum-mode t)
-        (semantic-mode t)
-	(global-ede-mode)
-	(global-semanticdb-minor-mode 1)
-	(global-semantic-idle-scheduler-mode 1)
-	(global-semantic-idle-completions-mode 1)
-	(global-semantic-idle-summary-mode 1)
-	;; (global-semantic-idle-local-symbol-highlight-mode 1)
-	(global-semantic-decoration-mode)
-	(global-semantic-highlight-func-mode)
-	(global-semantic-show-unmatched-syntax-mode t)
-	(global-semantic-highlight-edits-mode 1)
-	(semantic-enable-code-helpers)
-	(require 'semantic/ia)
-	(add-to-list 'company-backends 'company-c-headers)
-	))
-
-(global-ede-mode t)
-
-
-(defun my-c-mode-cedet-hook ()
-  (local-set-key "." 'semantic-complete-self-insert)
-  (local-set-key ">" 'semantic-complete-self-insert))
-
-
-(add-hook 'c++-mode-common-hook 'my-c-mode-cedet-hook)
-(add-hook 'c-mode-common-hook 'my-c-mode-cedet-hook)
 
 
 ;; (require 'auto-complete)
@@ -327,7 +85,7 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 ;; (add-to-list 'ac-dictionary-directories "/home/napalm/.emacs.d/lisp/ac-dict")
 ;; (ac-config-default)
 
-(require 'semantic/ia)
+;; (require 'semantic/ia)
 ;; (semantic-add-system-include "~/exp/include/boost_1_37" 'c++-mode)
 
 (require 'helm)
@@ -411,13 +169,10 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 ;; (semantic-add-system-include "/usr/include/c++/5.2.1" 'c++-mode)
 
 
-(require 'semantic/bovine/c)
-(add-to-list 'semantic-lex-c-preprocessor-symbol-file
-    "/usr/lib/gcc/x86_64-linux-gnu/5/include/stddef.h")
 
 (global-flycheck-mode t)
-(with-eval-after-load 'flycheck
-  (flycheck-pos-tip-mode))
+;; (with-eval-after-load 'flycheck
+;;   (flycheck-pos-tip-mode))
 
 
 (add-hook 'c-mode-hook 'projectile-mode)
@@ -430,9 +185,9 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 (require 'function-args)
 (fa-config-default)
 
-(require 'semantic/bovine/c)
-(add-to-list 'semantic-lex-c-preprocessor-symbol-file
-	     "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stddef.h")
+;; (require 'semantic/bovine/c)
+;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file
+;; 	     "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stddef.h")
 
 (set-default 'semantic-case-fold t)
 
@@ -451,13 +206,13 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
 
 (window-numbering-mode 1)
 
-(require 'highlight-parentheses)
-(define-globalized-minor-mode global-highlight-parentheses-mode
-  highlight-parentheses-mode
-  (lambda ()
-    (highlight-parentheses-mode t)))
+;; (require 'highlight-parentheses)
+;; (define-globalized-minor-mode global-highlight-parentheses-mode
+;;   highlight-parentheses-mode
+;;   (lambda ()
+;;     (highlight-parentheses-mode t)))
 
-(global-highlight-parentheses-mode t)
+;; (global-highlight-parentheses-mode t)
 
 
 (require 'shell-pop)
@@ -520,6 +275,7 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
  '(backup-directory-alist (quote ((".*" . "~/.emacs.d/backups/"))))
  '(column-number-mode t)
  '(display-time-mode t)
+ '(doc-view-continuous t)
  '(tool-bar-mode nil))
 
 ;; create the autosave dir if necessary, since emacs won't.
@@ -532,4 +288,29 @@ Written by Nikolaj Schumacher, 2008-10-20. Released under GPL 2."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 120 :width normal)))))
+ '(default ((t (:family "Iosevka" :foundry "unknown" :slant normal :weight normal :height 120 :width normal))))
+ '(show-paren-match ((t (:background "powder blue")))))
+
+
+;Функция для файлов .fb2 в режиме просмотра
+ (defun fb2-mode-view()
+     (vc-toggle-read-only)
+     (interactive)
+     (sgml-mode)
+     (sgml-tags-invisible 0))
+
+;Функция для файлов .fb2 в режиме редактирования
+(defun fb2-mode-edit()
+     (vc-toggle-read-only nil)
+     (interactive)
+     (sgml-mode)
+     (sgml-tags-invisible 0))
+
+
+;Авто определение формата по расширению файла
+(add-to-list 'auto-mode-alist '(".fb2$" . fb2-mode-view))
+
+(show-paren-mode 1)
+;; (setq show-paren-style 'parenthesis)
+(setq show-paren-style 'expression)
+;; (setq show-paren-style 'mixed)
