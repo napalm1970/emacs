@@ -3,3 +3,7 @@
 !.emacs
 !global_settings.el
 !init_install_package.el
+!bookmarks-settings.el
+!c-mode-settings.el
+!c++-mode-settings.el
+!doc-view-mode.el
