@@ -26,6 +26,14 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(desktop-save-mode t)
+(load-file "/home/napalm/emacs/function.el")
+;; (load-file "/home/napalm/emacs/doc-view-mode.el")
+
+(server-start)
+
+(global-set-key [f9] 'bookmark-set)
+(global-set-key [f10] 'bookmark-jump)
 
 
 (use-package which-key
@@ -37,14 +45,34 @@
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-(use-package ace-window
-  :ensure t
-  :init
-  (progn
-    (global-set-key [remap other-window] 'ace-window)
-    (custom-set-faces
-     '(aw-leading-char-face
-       ((t (:inherit ace-jump-face-foreground :height 3.0)))))))
+;; (use-package ace-window
+;;   :ensure t
+;;   :init
+;;   (progn
+;;     (global-set-key [remap other-window] 'ace-window)
+;;     (custom-set-faces
+;;      '(aw-leading-char-face
+;;        ((t (:inherit ace-jump-face-foreground :height 3.0)))))))
+
+
+(use-package window-numbering
+	     :ensure t
+	     :config
+	     (progn
+	       (setq window-numbering-auto-assign-0-to-minibuffer nil)
+	       (global-set-key (kbd "M-0") 'select-window-0)
+	       (global-set-key (kbd "M-1") 'select-window-1)
+	       (global-set-key (kbd "M-2") 'select-window-2)
+	       (global-set-key (kbd "M-3") 'select-window-3)
+	       (global-set-key (kbd "M-4") 'select-window-4)
+	       (global-set-key (kbd "M-5") 'select-window-5)
+	       (global-set-key (kbd "M-6") 'select-window-6)
+	       (global-set-key (kbd "M-7") 'select-window-7)
+	       (global-set-key (kbd "M-8") 'select-window-8)
+	       (global-set-key (kbd "M-9") 'select-window-9)
+	       (window-numbering-mode 1)
+	       )
+	     )
 
 
 (use-package company
@@ -64,7 +92,7 @@
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t)
     (global-set-key "\C-s" 'swiper)
-    (global-set-key (kbd "C-c C-r") 'ivy-resume)
+;;     (global-set-key (kbd "C-c C-r") 'ivy-resume)
     (global-set-key (kbd "<f6>") 'ivy-resume)
     (global-set-key (kbd "M-x") 'counsel-M-x)
     (global-set-key (kbd "C-x C-f") 'counsel-find-file)
@@ -77,14 +105,14 @@
     (global-set-key (kbd "C-c j") 'counsel-git-grep)
     (global-set-key (kbd "C-c k") 'counsel-ag)
     (global-set-key (kbd "C-x l") 'counsel-locate)
-    (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+    ;; (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
     ))
 
 
 (use-package zenburn-theme
-  :ensure t
-  :config (load-theme 'zenburn t))
+	     :ensure t
+	     :config (load-theme 'zenburn t))
 (global-hl-line-mode t)
 
 
@@ -121,9 +149,12 @@
 
 
 (use-package undo-tree
-:ensure t
-  :init
-    (global-undo-tree-mode))
+	     :ensure t
+	     :init
+	     (progn
+	       (global-undo-tree-mode)
+	       (setq undo-tree-visualizer-timestamps t)
+	       (setq undo-tree-visualizer-diff t)))
 
 (use-package expand-region
   :ensure t
@@ -212,24 +243,59 @@
 	     )
 
 
+(use-package shell-pop
+	     :ensure t
+	     :init
+	     (require 'shell-pop)
+	     '(shell-pop--set-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell shell-pop-term-shell)))))
+	     '(shell-pop-term-shell "/bin/bash")
+	     '(shell-pop-window-size 60)
+	     '(shell-pop-window-position "bottom")
+	     (global-set-key [f8] 'shell-pop))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(defalias 'list-buffers 'ibuffer-other-window)
 	     
-	     (provide 'init)
+(use-package magit
+	     :ensure t
+	     :init
+	     (progn
+	       (bind-key "C-c g" 'magit-status)))
+
+
+(use-package projectile
+	     :ensure t
+	     :init (progn
+		     (projectile-global-mode)
+		     (setq projectile-completion-system 'ivy))
+	     )
+
+
+(use-package dired+
+	     :ensure t
+	     :config (require 'dired+))
+
+(use-package pdf-tools
+	     :ensure t
+	     :mode (("\\.pdf\\*" . pdf-view-mode))
+	     :config
+	     (pdf-tools-install))
+(recentf-mode t)
+(global-set-key (kbd "C-c r f") 'recentf-open-files)
+
+(use-package clojure-mode
+	     :ensure t
+	     :config
+	     ;; (clojure-mode)
+	     (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
+	     )
+
+(use-package cider
+     :ensure t)
+
+(global-set-key [f6] 'compile)
+
+
+(provide 'init)
 
 
 
@@ -244,9 +310,10 @@
  '(custom-safe-themes
    (quote
     ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+ '(doc-view-continuous t)
  '(package-selected-packages
    (quote
-    (smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+    (cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
