@@ -26,9 +26,9 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(desktop-save-mode t)
+;; (desktop-save-mode t)
 (load-file "/home/napalm/emacs/function.el")
-;; (load-file "/home/napalm/emacs/doc-view-mode.el")
+
 
 (server-start)
 
@@ -251,7 +251,8 @@
 	     '(shell-pop-term-shell "/bin/bash")
 	     '(shell-pop-window-size 60)
 	     '(shell-pop-window-position "bottom")
-	     (global-set-key [f8] 'shell-pop))
+	     :bind ("<f8>" . shell-pop)
+	     :config (setq shell-pop-internal-mode "eshell"))
 
 (defalias 'list-buffers 'ibuffer-other-window)
 	     
@@ -274,6 +275,11 @@
 	     :ensure t
 	     :config (require 'dired+))
 
+(use-package dired-quick-sort
+	     :ensure t
+	     :config
+	     (dired-quick-sort-setup))
+
 (use-package pdf-tools
 	     :ensure t
 	     :mode (("\\.pdf\\*" . pdf-view-mode))
@@ -292,8 +298,69 @@
 (use-package cider
      :ensure t)
 
-(global-set-key [f6] 'compile)
+(global-set-key [f7] 'compile)
 
+(use-package dumb-jump
+  :bind (("M-g o" . dumb-jump-go-other-window)
+         ("M-g j" . dumb-jump-go)
+         ("M-g x" . dumb-jump-go-prefer-external)
+         ("M-g z" . dumb-jump-go-prefer-external-other-window))
+  :config 
+  ;; (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
+:init
+(dumb-jump-mode)
+  :ensure
+)
+
+
+(use-package shell-switcher
+  :ensure t
+  :config 
+  (setq shell-switcher-mode t)
+  :bind (("C-'" . shell-switcher-switch-buffer)
+	   ("C-x 4 '" . shell-switcher-switch-buffer-other-window)
+	   ("C-M-'" . shell-switcher-new-shell)))
+
+;; Visual commands
+(setq eshell-visual-commands '("vi" "screen" "top" "less" "more" "lynx"
+				 "ncftp" "pine" "tin" "trn" "elm" "vim"
+				 "nmtui" "alsamixer" "htop" "el" "elinks"
+				 ))
+(setq eshell-visual-subcommands '(("git" "log" "diff" "show")))
+(setq eshell-list-files-after-cd t)
+(defun eshell-clear-buffer ()
+  "Clear terminal"
+  (interactive)
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (eshell-send-input)))
+(add-hook 'eshell-mode-hook
+	    '(lambda()
+	       (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
+
+(defun eshell/magit ()
+  "Function to open magit-status for the current directory"
+  (interactive)
+  (magit-status default-directory)
+  nil)
+
+
+(use-package origami
+	     :ensure t)
+
+(use-package desktop+
+	     :ensure t
+	     :config
+	     (setq desktop+-special-buffer-handlers
+		   '(term-mode
+		     compilation-mode
+		     org-agenda-mode
+		     indirect-buffer
+		     Man-mode
+		     eshell-mode))
+	     :bind
+	     (("<f12> c" . desktop+-create)
+	      ("<f12> l" . desktop+-load)))
 
 (provide 'init)
 
@@ -313,7 +380,8 @@
  '(doc-view-continuous t)
  '(package-selected-packages
    (quote
-    (cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+    (desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+ '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
