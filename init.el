@@ -362,6 +362,23 @@
 	     (("<f12> c" . desktop+-create)
 	      ("<f12> l" . desktop+-load)))
 
+(global-set-key (kbd "RET") 'newline-and-indent)
+(setq-default tab-width 4)
+(setq-local eldoc-documentation-function #'ggtags-eldoc-function)
+
+;; (use-package irony
+;; 			 :ensure t
+;; 			 :config
+;; 			 (add-hook 'c++-mode-hook 'irony-mode)
+;; 			 (add-hook 'c-mode-hook 'irony-mode)
+;; 			 )
+
+;; (use-package company-irony
+;; 			 :ensure t
+;; 			 :config
+;; 			 (eval-after-load 'company
+;; 							  '(add-to-list 'company-backends 'company-irony)))
+
 (provide 'init)
 
 
@@ -374,13 +391,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-c-headers-path-system
+   (quote
+	("/usr/include/" "/usr/local/include/" "/usr/include/c++/6.3.1/")))
+ '(compilation-always-kill t)
+ '(compile-command "make")
  '(custom-safe-themes
    (quote
-    ("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+	("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(doc-view-continuous t)
  '(package-selected-packages
    (quote
-    (desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+	(company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
  '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
