@@ -30,7 +30,7 @@
 (load-file "/home/napalm/emacs/function.el")
 
 
-(server-start)
+;; (server-start)
 
 (global-set-key [f9] 'bookmark-set)
 (global-set-key [f10] 'bookmark-jump)
@@ -74,11 +74,33 @@
 	       )
 	     )
 
+(use-package elpy
+			 :ensure t
+			 :init
+			 (elpy-enable)
+			 (elpy-use-ipython)
+			 (setq elpy-rpc-backend "jedi"))
+(defun my/python-mode-hook ()
+  (elpy-mode)
+  ;; (jedi:setup)
+  ;; (setq jedi:complete-on-dot t)
+  ;; (setq elpy-rpc-python-command "python")
+  ;; (python-shell-interpreter "ipython")
+  (company-quickhelp-mode) )
+
+(add-hook 'python-mode-hook (lambda ()
+							  (run-hooks 'my/python-mode-hook)))
 
 (use-package company
   :ensure t
   :init
   (global-company-mode t))
+
+(use-package company-quickhelp
+			 :ensure t)
+
+
+
 
 
 (use-package counsel
@@ -113,7 +135,7 @@
 (use-package zenburn-theme
 	     :ensure t
 	     :config (load-theme 'zenburn t))
-(global-hl-line-mode t)
+;; (global-hl-line-mode t)
 
 
 (use-package flycheck
@@ -366,18 +388,10 @@
 (setq-default tab-width 4)
 (setq-local eldoc-documentation-function #'ggtags-eldoc-function)
 
-;; (use-package irony
-;; 			 :ensure t
-;; 			 :config
-;; 			 (add-hook 'c++-mode-hook 'irony-mode)
-;; 			 (add-hook 'c-mode-hook 'irony-mode)
-;; 			 )
 
-;; (use-package company-irony
-;; 			 :ensure t
-;; 			 :config
-;; 			 (eval-after-load 'company
-;; 							  '(add-to-list 'company-backends 'company-irony)))
+(use-package hl-line+
+			 :ensure t)
+
 
 (provide 'init)
 
@@ -400,9 +414,10 @@
    (quote
 	("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(doc-view-continuous t)
+ '(nlinum-highlight-current-line t)
  '(package-selected-packages
    (quote
-	(company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+	(company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
  '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
