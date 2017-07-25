@@ -45,15 +45,6 @@
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
 
-;; (use-package ace-window
-;;   :ensure t
-;;   :init
-;;   (progn
-;;     (global-set-key [remap other-window] 'ace-window)
-;;     (custom-set-faces
-;;      '(aw-leading-char-face
-;;        ((t (:inherit ace-jump-face-foreground :height 3.0)))))))
-
 
 (use-package window-numbering
 	     :ensure t
@@ -100,9 +91,6 @@
 			 :ensure t)
 
 
-
-
-
 (use-package counsel
   :ensure t
   )
@@ -116,7 +104,7 @@
     (global-set-key "\C-s" 'swiper)
 ;;     (global-set-key (kbd "C-c C-r") 'ivy-resume)
     (global-set-key (kbd "<f6>") 'ivy-resume)
-    (global-set-key (kbd "M-x") 'counsel-M-x)
+    ;; (global-set-key (kbd "M-x") 'counsel-M-x)
     (global-set-key (kbd "C-x C-f") 'counsel-find-file)
     (global-set-key (kbd "<f1> f") 'counsel-describe-function)
     (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
@@ -131,6 +119,7 @@
     (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
     ))
 
+(global-set-key (kbd "M-x") 'helm-M-x)
 
 (use-package zenburn-theme
 	     :ensure t
@@ -144,19 +133,20 @@
   (global-flycheck-mode 1))
 
 
-;; (use-package hydra
-;;   :ensure hydra
-;;   :init
-;;   (global-set-key (kbd "M-SPC")
-;; 		  (defhydra file (:color blue)
-;; 		    "file"
-;; 		    ("f" hydra-outline/body "find file"))))
-
 (use-package helm
   :ensure t
   :config
   (require 'helm-config))
 
+(use-package helm-swoop
+			 :ensure t
+			 :config
+			 (require 'helm-swoop))
+
+(define-key help-map (kbd "<tab>") 'helm-execute-persistent-action)
+(global-set-key (kbd "M-i") 'helm-swoop)
+(global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
+;; (define-key isearch-mode-map "M-i" 'helm-swoop-from-isearch)
 
 
 ; flashes the cursor's line when you scroll
@@ -392,6 +382,12 @@
 (use-package hl-line+
 			 :ensure t)
 
+;; Linum mode
+
+(setq-default left-fringe-width  10)
+(setq-default right-fringe-width  0)
+(set-face-attribute 'fringe nil :background "black")
+
 
 (provide 'init)
 
@@ -417,7 +413,7 @@
  '(nlinum-highlight-current-line t)
  '(package-selected-packages
    (quote
-	(company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+	(helm-swoop company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
  '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
