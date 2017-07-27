@@ -221,6 +221,9 @@
 (require 'cl-lib)
 (setq-default inferior-lisp-program "sbcl")
 
+(use-package slime-company
+  :ensure t)
+
 (use-package slime
   :ensure t
   :config
