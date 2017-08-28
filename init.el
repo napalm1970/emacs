@@ -1,5 +1,6 @@
 ;;; Code:
 
+
 (require 'package)
 
 (when (>= emacs-major-version 24)
@@ -26,7 +27,6 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-;; (desktop-save-mode t)
 (load-file "/home/napalm/emacs/function.el")
 
 
@@ -71,6 +71,7 @@
 			 (elpy-enable)
 			 (elpy-use-ipython)
 			 (setq elpy-rpc-backend "jedi"))
+
 (defun my/python-mode-hook ()
   (elpy-mode)
   ;; (jedi:setup)
@@ -95,37 +96,18 @@
   :ensure t
   )
 
-(use-package swiper
-  :ensure try
-  :config
-  (progn
-    (ivy-mode 1)
-    (setq ivy-use-virtual-buffers t)
-    (global-set-key "\C-s" 'swiper)
-;;     (global-set-key (kbd "C-c C-r") 'ivy-resume)
-    (global-set-key (kbd "<f6>") 'ivy-resume)
-    ;; (global-set-key (kbd "M-x") 'counsel-M-x)
-    (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-    (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-    (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-    (global-set-key (kbd "<f1> l") 'counsel-load-library)
-    (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-    (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-    (global-set-key (kbd "C-c g") 'counsel-git)
-    (global-set-key (kbd "C-c j") 'counsel-git-grep)
-    (global-set-key (kbd "C-c k") 'counsel-ag)
-    (global-set-key (kbd "C-x l") 'counsel-locate)
-    ;; (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-    (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
-    ))
 
-(global-set-key (kbd "M-x") 'helm-M-x)
 
 (use-package zenburn-theme
 	     :ensure t
-	     :config (load-theme 'zenburn t))
-;; (global-hl-line-mode t)
+	     :config (load-theme 'zenburn -1))
 
+(global-hl-line-mode t)
+
+
+(use-package monokai
+	     :ensure t
+	     :config (load-theme 'monokai t))
 
 (use-package flycheck
   :ensure t
@@ -136,17 +118,31 @@
 (use-package helm
   :ensure t
   :config
-  (require 'helm-config))
+	(require 'helm-config)
+			 (global-set-key (kbd "C-x C-f") 'helm-find-files)
+			 (global-set-key (kbd "M-x") 'helm-M-x)
+			 (global-set-key (kbd "M-y") 'helm-show-kill-ring)
+			 (global-set-key (kbd "C-x b") 'helm-mini)
+			 (define-key help-map (kbd "<tab>") 'helm-execute-persistent-action)
+			 (global-set-key (kbd "M-i") 'helm-swoop)
+			 (global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
+			 (global-set-key (kbd "C-c h o") 'helm-occur)
+			 (setq helm-locate-fuzzy-match t) 
+			 (setq helm-apropos-fuzzy-match t)
+			 (setq helm-lisp-fuzzy-completion t) 
+
+			 
+			 )
+
 
 (use-package helm-swoop
 			 :ensure t
 			 :config
 			 (require 'helm-swoop))
 
-(define-key help-map (kbd "<tab>") 'helm-execute-persistent-action)
-(global-set-key (kbd "M-i") 'helm-swoop)
-(global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
-;; (define-key isearch-mode-map "M-i" 'helm-swoop-from-isearch)
+(use-package helm-themes
+			 :ensure t
+			 )
 
 
 ; flashes the cursor's line when you scroll
@@ -218,24 +214,6 @@
 	     (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 (show-paren-mode t)
 
-(require 'cl-lib)
-(setq-default inferior-lisp-program "sbcl")
-
-(use-package slime-company
-  :ensure t)
-
-(use-package slime
-  :ensure t
-  :config
-  (require 'slime)
-  (require 'slime-autoloads)
-  (slime-setup '(slime-asdf
-		 slime-fancy
-		 slime-indentation
-		 slime-company))
-  (setq-default slime-net-coding-system 'utf-8-unix)
-  (setq-default lisp-body-indent 2)
-  (setq-default lisp-indent-function 'common-lisp-indent-function))
 
 (use-package lua-mode
 	     :ensure t
@@ -246,28 +224,18 @@
 
 
 
-(use-package smart-mode-line-powerline-theme
-	     :ensure smart-mode-line-powerline-theme)
-(use-package smart-mode-line
-	     :ensure smart-mode-line
-	     :init
-	     (progn
-	      (setq sml/no-confirm-load-theme t)
-	       (sml/setup)
-	       (sml/apply-theme 'powerline))
-	     )
-
-
 (use-package shell-pop
 	     :ensure t
 	     :init
 	     (require 'shell-pop)
-	     '(shell-pop--set-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell shell-pop-term-shell)))))
+	     '(shell-pop--set-shell-type (quote ("shell" "*eshell*" (lambda nil (eshell shell-pop-term-shell)))))
 	     '(shell-pop-term-shell "/bin/bash")
 	     '(shell-pop-window-size 60)
 	     '(shell-pop-window-position "bottom")
 	     :bind ("<f8>" . shell-pop)
 	     :config (setq shell-pop-internal-mode "eshell"))
+
+
 
 (defalias 'list-buffers 'ibuffer-other-window)
 	     
@@ -280,7 +248,8 @@
 
 (use-package projectile
 	     :ensure t
-	     :init (progn
+	     :init
+			 (progn
 		     (projectile-global-mode)
 		     (setq projectile-completion-system 'ivy))
 	     )
@@ -303,38 +272,13 @@
 (recentf-mode t)
 (global-set-key (kbd "C-c r f") 'recentf-open-files)
 
-(use-package clojure-mode
-	     :ensure t
-	     :config
-	     ;; (clojure-mode)
-	     (add-to-list 'auto-mode-alist '("\\.clj$" . clojure-mode))
-	     )
-
-(use-package cider
-     :ensure t)
-
 (global-set-key [f7] 'compile)
 
-(use-package dumb-jump
-  :bind (("M-g o" . dumb-jump-go-other-window)
-         ("M-g j" . dumb-jump-go)
-         ("M-g x" . dumb-jump-go-prefer-external)
-         ("M-g z" . dumb-jump-go-prefer-external-other-window))
-  :config 
-  ;; (setq dumb-jump-selector 'ivy) ;; (setq dumb-jump-selector 'helm)
-:init
-(dumb-jump-mode)
-  :ensure
-)
+(use-package evil
+			 :ensure t
+			 :init
+			 (evil-mode t))
 
-
-(use-package shell-switcher
-  :ensure t
-  :config 
-  (setq shell-switcher-mode t)
-  :bind (("C-'" . shell-switcher-switch-buffer)
-	   ("C-x 4 '" . shell-switcher-switch-buffer-other-window)
-	   ("C-M-'" . shell-switcher-new-shell)))
 
 ;; Visual commands
 (setq eshell-visual-commands '("vi" "screen" "top" "less" "more" "lynx"
@@ -392,6 +336,29 @@
 (set-face-attribute 'fringe nil :background "black")
 
 
+(semantic-mode 1) 
+(setq helm-semantic-fuzzy-match t
+      helm-imenu-fuzzy-match    t) 
+
+
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+
+(use-package evil-matchit
+  :ensure t
+  :config
+  (global-evil-matchit-mode t)
+  (setq evilmi-may-jump-by-percentage nil) ) 
+
+
+(use-package evil-easymotion
+  :ensure t
+  :config
+  (evilem-default-keybindings "SPC") 
+   ) 
+
 (provide 'init)
 
 
@@ -411,19 +378,91 @@
  '(compile-command "make")
  '(custom-safe-themes
    (quote
-	("84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+	("3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
  '(doc-view-continuous t)
  '(nlinum-highlight-current-line t)
+ '(nrepl-message-colors
+   (quote
+	("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-	(helm-swoop company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+	(evil-easymotion evil-matchit evil-surround monokai eshell-prompt-extras evil-leader evil monokai-theme helm-themes helm-helm-commands helm-gtags helm-swoop company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+ '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
+ '(sml/mode-width
+   (if
+	   (eq
+		(powerline-current-separator)
+		(quote arrow))
+	   (quote right)
+	 (quote full)))
+ '(sml/pos-id-separator
+   (quote
+	(""
+	 (:propertize " " face powerline-active1)
+	 (:eval
+	  (propertize " "
+				  (quote display)
+				  (funcall
+				   (intern
+					(format "powerline-%s-%s"
+							(powerline-current-separator)
+							(car powerline-default-separator-dir)))
+				   (quote powerline-active1)
+				   (quote powerline-active2))))
+	 (:propertize " " face powerline-active2))))
+ '(sml/pos-minor-modes-separator
+   (quote
+	(""
+	 (:propertize " " face powerline-active1)
+	 (:eval
+	  (propertize " "
+				  (quote display)
+				  (funcall
+				   (intern
+					(format "powerline-%s-%s"
+							(powerline-current-separator)
+							(cdr powerline-default-separator-dir)))
+				   (quote powerline-active1)
+				   (quote sml/global))))
+	 (:propertize " " face sml/global))))
+ '(sml/pre-id-separator
+   (quote
+	(""
+	 (:propertize " " face sml/global)
+	 (:eval
+	  (propertize " "
+				  (quote display)
+				  (funcall
+				   (intern
+					(format "powerline-%s-%s"
+							(powerline-current-separator)
+							(car powerline-default-separator-dir)))
+				   (quote sml/global)
+				   (quote powerline-active1))))
+	 (:propertize " " face powerline-active1))))
+ '(sml/pre-minor-modes-separator
+   (quote
+	(""
+	 (:propertize " " face powerline-active2)
+	 (:eval
+	  (propertize " "
+				  (quote display)
+				  (funcall
+				   (intern
+					(format "powerline-%s-%s"
+							(powerline-current-separator)
+							(cdr powerline-default-separator-dir)))
+				   (quote powerline-active2)
+				   (quote powerline-active1))))
+	 (:propertize " " face powerline-active1))))
+ '(sml/pre-modes-separator (propertize " " (quote face) (quote sml/modes)))
  '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka" :foundry "CYEL" :slant normal :weight normal :height 122 :width normal))))
+ '(default ((t (:family "Iosevka Slab" :foundry "CYEL" :slant normal :weight normal :height 143 :width normal))))
  '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0)))))
