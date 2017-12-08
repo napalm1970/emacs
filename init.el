@@ -1,7 +1,5 @@
 ;;; Code:
-
-
-(require 'package)
+;;;Commentary:
 
 (when (>= emacs-major-version 24)
   (setq package-archives '(
@@ -73,15 +71,15 @@
 			 (setq elpy-rpc-backend "jedi"))
 
 (defun my/python-mode-hook ()
-  (elpy-mode)
-  ;; (jedi:setup)
-  ;; (setq jedi:complete-on-dot t)
-  ;; (setq elpy-rpc-python-command "python")
-  ;; (python-shell-interpreter "ipython")
-  (company-quickhelp-mode) )
+  (elpy-mode t)
+   (jedi:setup)
+   (setq jedi:complete-on-dot t)
+   (setq elpy-rpc-python-command "python")
+   (python-shell-interpreter "ipython")
+  (company-quickhelp-mode) ) 
 
 (add-hook 'python-mode-hook (lambda ()
-							  (run-hooks 'my/python-mode-hook)))
+							  (run-hooks 'my/python-mode-hook))) 
 
 (use-package company
   :ensure t
@@ -98,16 +96,16 @@
 
 
 
-(use-package zenburn-theme
-	     :ensure t
-	     :config (load-theme 'zenburn -1))
+;; (use-package zenburn-theme
+;; 	     :ensure t
+;; 	     :config (load-theme 'zenburn -1))
 
 (global-hl-line-mode t)
 
+(use-package dracula-theme
+  :ensure t
+  :config (load-theme 'dracula t))
 
-(use-package monokai
-	     :ensure t
-	     :config (load-theme 'monokai t))
 
 (use-package flycheck
   :ensure t
@@ -130,8 +128,6 @@
 			 (setq helm-locate-fuzzy-match t) 
 			 (setq helm-apropos-fuzzy-match t)
 			 (setq helm-lisp-fuzzy-completion t) 
-
-			 
 			 )
 
 
@@ -179,27 +175,49 @@
   :init
   (yas-global-mode 1))
 
-(use-package ggtags
+;; (use-package ggtags
+;;   :ensure t
+;;   :config
+;;   (add-hook 'c-mode-common-hook
+;; 	    (lambda ()
+;; 	      (when derived-mode-p 'c-mode 'c++-mode)
+;; 	      (ggtags-mode 1))))
+
+(use-package helm-gtags
   :ensure t
   :config
-  (add-hook 'c-mode-common-hook
-	    (lambda ()
-	      (when derived-mode-p 'c-mode 'c++-mode)
-	      (ggtags-mode 1))))
+  (setq
+   helm-gtags-ignore-case t
+   helm-gtags-auto-update t
+   helm-gtags-use-input-at-cursor t
+   helm-gtags-pulse-at-cursor t
+   helm-gtags-prefix-key "\C-cg"
+   helm-gtags-suggested-key-mapping t
+   )
+;; Enable helm-gtags-mode
+(add-hook 'lua-mode-hook 'helm-gtags-mode)
+(add-hook 'eshell-mode-hook 'helm-gtags-mode)
+(add-hook 'c-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'asm-mode-hook 'helm-gtags-mode)
 
-(use-package smartparens
-  :ensure t
-  :config
-  (require 'smartparens-config)
-)
-
+(define-key helm-gtags-mode-map (kbd "C-c g a") 'helm-gtags-tags-in-this-function)
+(define-key helm-gtags-mode-map (kbd "C-j") 'helm-gtags-select)
+(define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-dwim)
+(define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack)
+(define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
+(define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
 
 (fset 'yes-or-no-p 'y-or-n-p)
 (global-set-key (kbd "<f5>") 'revert-buffer)
 
 (use-package avy
-  :ensure t
-  :bind ("M-s" . avy-goto-char))
+  :ensure t)
+
+
+(global-set-key (kbd "M-g c") 'avy-goto-char)
+(global-set-key (kbd "M-g l") 'avy-goto-line)
+
 
 (setq select-enable-clipboard t)
 
@@ -216,12 +234,37 @@
 
 
 (use-package lua-mode
-	     :ensure t
-	     :config
-	     (autoload 'lua-mode "lua-mode" "Lua editing mode")
-	     (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
-	     (add-to-list 'interpreter-mode-alist '("lua" . lua-mode)))
+  :ensure t
+  :config
+  (autoload 'lua-mode "lua-mode" "Lua editing mode")
+  (add-to-list 'auto-mode-alist '("\\.lua$" . lua-mode))
+  (add-to-list 'interpreter-mode-alist '("lua" . lua-mode)
+  (ggtags-mode 1))
 
+  (bind-keys :map lua-mode-map
+			 ("C-c s l" . lua-send-current-line)
+			 ("C-c s r" . lua-send-region)
+			 ("C-c s d" . lua-send-defun)))
+
+(add-hook 'lua-mode-hook
+	    '(lambda()
+	       (linum-mode 1)
+		   (hs-minor-mode 1)))
+
+
+(use-package love-minor-mode
+  :ensure t)
+
+(use-package company-lua
+  :ensure t
+  )
+
+(defun my-lua-mode-company-init ()
+  (setq-local company-backends '((company-lua
+                                  company-etags
+                                  company-dabbrev-code
+                                  company-yasnippet))))
+(add-hook 'lua-mode-hook #'my-lua-mode-company-init)
 
 
 (use-package shell-pop
@@ -274,52 +317,35 @@
 
 (global-set-key [f7] 'compile)
 
+(use-package evil-leader
+  :ensure t
+  :config
+  (global-evil-leader-mode t)
+  (evil-leader/set-key
+	"f" 'helm-find-files
+	"b" 'helm-mini
+	"k" 'kill-bufer
+)) 
+
+
+
 (use-package evil
 			 :ensure t
 			 :init
 			 (evil-mode t))
 
 
-;; Visual commands
-(setq eshell-visual-commands '("vi" "screen" "top" "less" "more" "lynx"
-				 "ncftp" "pine" "tin" "trn" "elm" "vim"
-				 "nmtui" "alsamixer" "htop" "el" "elinks"
-				 ))
-(setq eshell-visual-subcommands '(("git" "log" "diff" "show")))
-(setq eshell-list-files-after-cd t)
-(defun eshell-clear-buffer ()
-  "Clear terminal"
+(defun eshell-clear-buffer()
   (interactive)
   (let ((inhibit-read-only t))
     (erase-buffer)
     (eshell-send-input)))
+
 (add-hook 'eshell-mode-hook
 	    '(lambda()
 	       (local-set-key (kbd "C-l") 'eshell-clear-buffer)))
 
-(defun eshell/magit ()
-  "Function to open magit-status for the current directory"
-  (interactive)
-  (magit-status default-directory)
-  nil)
 
-
-(use-package origami
-	     :ensure t)
-
-(use-package desktop+
-	     :ensure t
-	     :config
-	     (setq desktop+-special-buffer-handlers
-		   '(term-mode
-		     compilation-mode
-		     org-agenda-mode
-		     indirect-buffer
-		     Man-mode
-		     eshell-mode))
-	     :bind
-	     (("<f12> c" . desktop+-create)
-	      ("<f12> l" . desktop+-load)))
 
 (global-set-key (kbd "RET") 'newline-and-indent)
 (setq-default tab-width 4)
@@ -336,7 +362,6 @@
 (set-face-attribute 'fringe nil :background "black")
 
 
-(semantic-mode 1) 
 (setq helm-semantic-fuzzy-match t
       helm-imenu-fuzzy-match    t) 
 
@@ -359,6 +384,86 @@
   (evilem-default-keybindings "SPC") 
    ) 
 
+(use-package counsel
+  :ensure t)
+
+(use-package swiper
+  :ensure try
+  :config
+  (progn
+    (ivy-mode 1)
+    (setq ivy-use-virtual-buffers t)
+    (global-set-key "\C-s" 'swiper))) 
+
+
+(global-set-key (kbd "M-/") #'hippie-expand)
+(save-place-mode t)
+
+(use-package neotree
+  :ensure t
+  :init
+  ;; (global-set-key [f12] 'neotree-toggle)
+  :config
+  (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
+(add-hook 'neotree-mode-hook
+            (lambda ()
+              (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+              (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
+              (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+              (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
+ (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+  )
+
+
+
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (progn
+    (use-package treemacs-evil
+      :ensure t
+      :demand t)
+    (setq treemacs-follow-after-init          t
+          treemacs-width                      35
+          treemacs-indentation                2
+          treemacs-git-integration            t
+          treemacs-collapse-dirs              3
+          treemacs-silent-refresh             nil
+          treemacs-change-root-without-asking nil
+          treemacs-sorting                    'alphabetic-desc
+          treemacs-show-hidden-files          t
+          treemacs-never-persist              nil
+          treemacs-is-never-other-window      nil
+          treemacs-goto-tag-strategy          'refetch-index)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t))
+  :bind
+  (:map global-map
+        ([f12]        . treemacs-toggle)
+        ("M-0"       . treemacs-select-window)
+        ("C-c 1"     . treemacs-delete-other-windows)
+        ;; ("M-m ft"    . treemacs-toggle)
+        ;; ("M-m fT"    . treemacs)
+        ;; ("M-m f C-t" . treemacs-find-file)
+		))
+(use-package treemacs-projectile
+  :defer t
+  :ensure t
+  :config
+  (setq treemacs-header-function #'treemacs-projectile-create-header)
+  ;; :bind (:map global-map
+  ;;             ("M-m fP" . treemacs-projectile)
+  ;;             ("M-m fp" . treemacs-projectile-toggle))
+  )
+
+
+
+
 (provide 'init)
 
 
@@ -371,98 +476,47 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(company-c-headers-path-system
-   (quote
-	("/usr/include/" "/usr/local/include/" "/usr/include/c++/6.3.1/")))
- '(compilation-always-kill t)
- '(compile-command "make")
+ '(ansi-color-names-vector
+   ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(custom-safe-themes
    (quote
-	("3629b62a41f2e5f84006ff14a2247e679745896b5eaa1d5bcfbc904a3441b0cd" "84d2f9eeb3f82d619ca4bfffe5f157282f4779732f48a5ac1484d94d5ff5b279" default)))
+	("8ed752276957903a270c797c4ab52931199806ccd9f0c3bb77f6f4b9e71b9272" default)))
  '(doc-view-continuous t)
- '(nlinum-highlight-current-line t)
+ '(fci-rule-color "#383838")
  '(nrepl-message-colors
    (quote
 	("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-	(evil-easymotion evil-matchit evil-surround monokai eshell-prompt-extras evil-leader evil monokai-theme helm-themes helm-helm-commands helm-gtags helm-swoop company-quickhelp elpy hl-line+ nlinum-hl nlinum company-irony irony company-c-headers desctop+ origami s dumb-jump shell-switcher dired-quick-sort cider clojure-mode window-numbering pdf-tools dired+ projectile migit shell-pop smart-mode-line-powerline-theme lua-mode slime-company slime rainbow-delimiters paredit move-text smartparens ggtags yasnippet iedit expand-region undo-tree beacon helm zenburn-theme which-key use-package try org-bullets jedi flycheck counsel company-jedi ace-window)))
+	(love-minor-mode dracula-theme helm-gtags company-lua git-gutter treemacs-projectile evil-escape evil-tutor ivy-gitlab monokai zenburn-theme window-numbering which-key use-package try smartparens smart-mode-line-powerline-theme slime-company shell-switcher shell-pop rainbow-delimiters projectile pdf-tools paredit origami org-bullets monokai-theme lua-mode iedit hl-line+ helm-themes helm-swoop ggtags flycheck expand-region evil-surround evil-matchit evil-magit evil-leader evil-easymotion eshell-prompt-extras elpy dumb-jump dired-quick-sort dired+ desktop+ counsel company-quickhelp cider beacon)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
- '(shell-pop-shell-type (quote ("eshell" "*eshell*" (lambda nil (eshell)))))
  '(show-paren-mode t)
- '(sml/mode-width
-   (if
-	   (eq
-		(powerline-current-separator)
-		(quote arrow))
-	   (quote right)
-	 (quote full)))
- '(sml/pos-id-separator
+ '(tool-bar-mode nil)
+ '(vc-annotate-background "#2B2B2B")
+ '(vc-annotate-color-map
    (quote
-	(""
-	 (:propertize " " face powerline-active1)
-	 (:eval
-	  (propertize " "
-				  (quote display)
-				  (funcall
-				   (intern
-					(format "powerline-%s-%s"
-							(powerline-current-separator)
-							(car powerline-default-separator-dir)))
-				   (quote powerline-active1)
-				   (quote powerline-active2))))
-	 (:propertize " " face powerline-active2))))
- '(sml/pos-minor-modes-separator
-   (quote
-	(""
-	 (:propertize " " face powerline-active1)
-	 (:eval
-	  (propertize " "
-				  (quote display)
-				  (funcall
-				   (intern
-					(format "powerline-%s-%s"
-							(powerline-current-separator)
-							(cdr powerline-default-separator-dir)))
-				   (quote powerline-active1)
-				   (quote sml/global))))
-	 (:propertize " " face sml/global))))
- '(sml/pre-id-separator
-   (quote
-	(""
-	 (:propertize " " face sml/global)
-	 (:eval
-	  (propertize " "
-				  (quote display)
-				  (funcall
-				   (intern
-					(format "powerline-%s-%s"
-							(powerline-current-separator)
-							(car powerline-default-separator-dir)))
-				   (quote sml/global)
-				   (quote powerline-active1))))
-	 (:propertize " " face powerline-active1))))
- '(sml/pre-minor-modes-separator
-   (quote
-	(""
-	 (:propertize " " face powerline-active2)
-	 (:eval
-	  (propertize " "
-				  (quote display)
-				  (funcall
-				   (intern
-					(format "powerline-%s-%s"
-							(powerline-current-separator)
-							(cdr powerline-default-separator-dir)))
-				   (quote powerline-active2)
-				   (quote powerline-active1))))
-	 (:propertize " " face powerline-active1))))
- '(sml/pre-modes-separator (propertize " " (quote face) (quote sml/modes)))
- '(tool-bar-mode nil))
+	((20 . "#BC8383")
+	 (40 . "#CC9393")
+	 (60 . "#DFAF8F")
+	 (80 . "#D0BF8F")
+	 (100 . "#E0CF9F")
+	 (120 . "#F0DFAF")
+	 (140 . "#5F7F5F")
+	 (160 . "#7F9F7F")
+	 (180 . "#8FB28F")
+	 (200 . "#9FC59F")
+	 (220 . "#AFD8AF")
+	 (240 . "#BFEBBF")
+	 (260 . "#93E0E3")
+	 (280 . "#6CA0A3")
+	 (300 . "#7CB8BB")
+	 (320 . "#8CD0D3")
+	 (340 . "#94BFF3")
+	 (360 . "#DC8CC3"))))
+ '(vc-annotate-very-old-color "#DC8CC3"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "Iosevka Slab" :foundry "CYEL" :slant normal :weight normal :height 143 :width normal))))
- '(aw-leading-char-face ((t (:inherit ace-jump-face-foreground :height 3.0)))))
+ '(default ((t (:family "Iosevka Slab" :foundry "CYEL" :slant normal :weight normal :height 120 :width normal)))))
