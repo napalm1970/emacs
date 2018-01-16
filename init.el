@@ -157,7 +157,7 @@
 	     :init
 	     (progn
 	       (global-undo-tree-mode)
-	       (setq undo-tree-visualizer-timestamps t)
+;;	       (setq undo-tree-visualizer-timestamps t)
 	       (setq undo-tree-visualizer-diff t)))
 
 (use-package expand-region
@@ -317,22 +317,22 @@
 
 (global-set-key [f7] 'compile)
 
-(use-package evil-leader
-  :ensure t
-  :config
-  (global-evil-leader-mode t)
-  (evil-leader/set-key
-	"f" 'helm-find-files
-	"b" 'helm-mini
-	"k" 'kill-bufer
-)) 
+;; (use-package evil-leader
+;;   :ensure t
+;;   :config
+;;   (global-evil-leader-mode t)
+;;   (evil-leader/set-key
+;; 	"f" 'helm-find-files
+;; 	"b" 'helm-mini
+;; 	"k" 'kill-bufer
+;; )) 
 
 
 
-(use-package evil
-			 :ensure t
-			 :init
-			 (evil-mode t))
+;; (use-package evil
+;; 			 :ensure t
+;; 			 :init
+;; 			 (evil-mode t))
 
 
 (defun eshell-clear-buffer()
@@ -366,23 +366,23 @@
       helm-imenu-fuzzy-match    t) 
 
 
-(use-package evil-surround
-  :ensure t
-  :config
-  (global-evil-surround-mode 1))
+;; (use-package evil-surround
+;;   :ensure t
+;;   :config
+;;   (global-evil-surround-mode 1))
 
-(use-package evil-matchit
-  :ensure t
-  :config
-  (global-evil-matchit-mode t)
-  (setq evilmi-may-jump-by-percentage nil) ) 
+;; (use-package evil-matchit
+;;   :ensure t
+;;   :config
+;;   (global-evil-matchit-mode t)
+;;   (setq evilmi-may-jump-by-percentage nil) ) 
 
 
-(use-package evil-easymotion
-  :ensure t
-  :config
-  (evilem-default-keybindings "SPC") 
-   ) 
+;; (use-package evil-easymotion
+;;   :ensure t
+;;   :config
+;;   (evilem-default-keybindings "SPC") 
+;;    ) 
 
 (use-package counsel
   :ensure t)
@@ -411,10 +411,10 @@
               (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-quick-look)
               (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
               (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
- (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
-  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
-  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
-  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
+ ;; (evil-define-key 'normal neotree-mode-map (kbd "TAB") 'neotree-enter)
+ ;;  (evil-define-key 'normal neotree-mode-map (kbd "SPC") 'neotree-quick-look)
+ ;;  (evil-define-key 'normal neotree-mode-map (kbd "q") 'neotree-hide)
+ ;;  (evil-define-key 'normal neotree-mode-map (kbd "RET") 'neotree-enter)
   )
 
 
@@ -458,10 +458,16 @@
   (setq treemacs-header-function #'treemacs-projectile-create-header)
   ;; :bind (:map global-map
   ;;             ("M-m fP" . treemacs-projectile)
-  ;;             ("M-m fp" . treemacs-projectile-toggle))
+  ;;             ("M-m fp" . treemacs-projectile-
   )
 
 
+(use-package clojure-mode
+  :ensure t
+  :bind ("C-RET" . cider-eval-last-sexp))
+
+(use-package cider
+  :ensure t)
 
 
 (provide 'init)
