@@ -125,16 +125,17 @@
   :config (load-theme 'dracula t))
 
 
-(use-package flycheck
-  :ensure t
-  :init
-  (global-flycheck-mode 1)
-  (setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers '(javascript-jshint)))
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
-  (setq-default flycheck-temp-prefix ".flycheck")
-  (setq-default flycheck-disabled-checkers
-  (append flycheck-disabled-checkers '(json-jsonlist))))
+;; (use-package flycheck
+;;   :ensure t
+;;   :init
+;;   ;; (global-flycheck-mode 1)
+;;   ;; (setq-default flycheck-disabled-checkers
+;;   ;; (append flycheck-disabled-checkers '(javascript-jshint)))
+;;   (flycheck-add-mode 'javascript-eslint 'web-mode)
+;;   (setq-default flycheck-temp-prefix ".flycheck")
+;;   (setq-default flycheck-disabled-checkers
+;;   (append flycheck-disabled-checkers '(json-jsonlist))
+;;   ))
 
 ;; use local eslint from node_modules before global
 ;; http://emacs.stackexchange.com/questions/21205/flycheck-with-file-relative-eslint-executable
@@ -553,6 +554,67 @@
   (exec-path-from-shell-initialize)))
 
 
+(require 'rtags)
+(require 'company-rtags)
+
+(setq rtags-completions-enabled t)
+(eval-after-load 'company
+  '(add-to-list
+    'company-backends 'company-rtags))
+(setq rtags-autostart-diagnostics t)
+(rtags-enable-standard-keybindings)
+
+
+
+(require 'helm-rtags)
+(setq rtags-use-helm t)
+
+
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+
+(defun my-irony-mode-hook ()
+  (define-key irony-mode-map [remap completion-at-point]
+    'irony-completion-at-point-async)
+  (define-key irony-mode-map [remap complete-symbol]
+    'irony-completion-at-point-async))
+
+(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+(add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+(setq company-backends (delete 'company-semantic company-backends))
+
+
+(setq company-idle-delay 0)
+(define-key c-mode-map [(tab)] 'semantic-complete-symbol)
+(define-key c++-mode-map [(tab)] 'semantic-complete-symbol)
+
+(require 'company-irony-c-headers)
+(eval-after-load 'company
+  '(add-to-list
+    'company-backends '(company-irony-c-headers company-irony)))
+
+
+(add-hook 'c++-mode-hook 'flycheck-mode)
+(add-hook 'c-mode-hook 'flycheck-mode)
+
+(require 'flycheck-rtags)
+
+(defun my-flycheck-rtags-setup ()
+  (flycheck-select-checker 'rtags)
+  (setq-local flycheck-highlighting-mode nil) ;; RTags creates more accurate overlays.
+  (setq-local flycheck-check-syntax-automatically nil))
+;; c-mode-common-hook is also called by c++-mode
+(add-hook 'c-mode-common-hook #'my-flycheck-rtags-setup)
+
+
+(cmake-ide-setup)
+
+(add-hook 'c++-mode-hook 'semantic-mode)
+(add-hook 'c-mode-hook 'semantic-mode)
+
 
 
 (provide 'init)
@@ -574,12 +636,19 @@
     ("8ed752276957903a270c797c4ab52931199806ccd9f0c3bb77f6f4b9e71b9272" default)))
  '(doc-view-continuous t)
  '(fci-rule-color "#383838")
+ '(flycheck-c/c++-clang-executable "/usr/bin/clang++")
+ '(flycheck-c/c++-gcc-executable "/usr/bin/g++")
+ '(flycheck-clang-args (quote ("")))
+ '(flycheck-clang-include-path
+   (quote
+    ("/usr/include/" "/usr/include/linux/" "/usr/include/c++/7.2.1/" "/usr/include/c++/7.2.1/x86_64-pc-linux-gnu")))
+ '(flycheck-clang-language-standard "c++14")
  '(nrepl-message-colors
    (quote
     ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-    (exec-path-from-shell tern-auto-complete tern coffee-mode cofee-mode ac-js2 js2-mode json-mode web-mode helm-emmet emmet-mode emet-mode love-minor-mode dracula-theme helm-gtags company-lua git-gutter treemacs-projectile evil-escape evil-tutor ivy-gitlab monokai zenburn-theme window-numbering which-key use-package try smartparens smart-mode-line-powerline-theme slime-company shell-switcher shell-pop rainbow-delimiters projectile pdf-tools paredit origami org-bullets monokai-theme lua-mode iedit hl-line+ helm-themes helm-swoop ggtags flycheck expand-region evil-surround evil-matchit evil-magit evil-leader evil-easymotion eshell-prompt-extras elpy dumb-jump dired-quick-sort dired+ desktop+ counsel company-quickhelp cider beacon)))
+    (cmake-ide flycheck-apertium company-irony-c-headers company-irony irony helm-rtags company-rtags rtags exec-path-from-shell tern-auto-complete tern coffee-mode cofee-mode ac-js2 js2-mode json-mode web-mode helm-emmet emmet-mode emet-mode love-minor-mode dracula-theme helm-gtags company-lua git-gutter treemacs-projectile evil-escape evil-tutor ivy-gitlab monokai zenburn-theme window-numbering which-key use-package try smartparens smart-mode-line-powerline-theme slime-company shell-switcher shell-pop rainbow-delimiters projectile pdf-tools paredit origami org-bullets monokai-theme lua-mode iedit hl-line+ helm-themes helm-swoop ggtags flycheck expand-region evil-surround evil-matchit evil-magit evil-leader evil-easymotion eshell-prompt-extras elpy dumb-jump dired-quick-sort dired+ desktop+ counsel company-quickhelp cider beacon)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
