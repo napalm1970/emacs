@@ -43,7 +43,7 @@
     ("08ef1356470a9d3bf363ffab0705d90f8a492796e9db489936de4bde6a4fdb19" "bd7b7c5df1174796deefce5debc2d976b264585d51852c962362be83932873d9" "3cd28471e80be3bd2657ca3f03fbb2884ab669662271794360866ab60b6cb6e6" default)))
  '(package-selected-packages
    (quote
-    (qt-pro-mode projectile magit expand-region auto-yasnippet auto-complete company-c-headers compamy-c-headers spaceline zerodark-theme sdcv dashboard monokai-theme color-themes smartparens yasnippet-snippets window-numbering which-key use-package try tabbar stickyfunc-enhance rainbow-delimiters paredit org-bullets neotree hungry-delete helm-themes helm-swoop helm-gtags helm-cscope gruvbox-theme ggtags flycheck dracula-theme disaster dired-quick-sort company-quickhelp cmake-mode clang-format cider beacon ace-window)))
+    (evil-collection company-emacs-eclim eclim evil-leader evil qt-pro-mode projectile magit expand-region auto-yasnippet auto-complete company-c-headers compamy-c-headers spaceline zerodark-theme sdcv dashboard monokai-theme color-themes smartparens yasnippet-snippets window-numbering which-key use-package try tabbar stickyfunc-enhance rainbow-delimiters paredit org-bullets neotree hungry-delete helm-themes helm-swoop helm-gtags helm-cscope gruvbox-theme ggtags flycheck dracula-theme disaster dired-quick-sort company-quickhelp cmake-mode clang-format cider beacon ace-window)))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces
