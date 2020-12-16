@@ -23,6 +23,7 @@
 (setq-default indicate-empty-lines t)
 (setq-default indicate-buffer-boundaries 'left)
 (recentf-mode)
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
 #+END_SRC
 * Interface
 ** Basic settings
@@ -87,18 +88,6 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
   :bind ("M-s" . avy-goto-word-1)) ;; changed from char as per jcs
   #+END_SRC
 
-* Autocomplete
-
-
-  #+BEGIN_SRC emacs-lisp  :tangle no
-     (use-package auto-complete
-     :ensure t
-     :init
-     (progn
-     (ac-config-default)
-       (global-auto-complete-mode t)
-      ))
-  #+END_SRC
 * Highligh current line
 =hl-line= is awesome! It's not very awesome in the terminal version of emacs though, so we don't use that.
 Besides, it's only used for programming.
@@ -108,22 +97,22 @@ Besides, it's only used for programming.
 
 * Window numbering
 #+BEGIN_SRC emacs-lisp
-(use-package window-numbering
-  :ensure t
-  :config
-  (progn
-    (setq window-numbering-auto-assign-0-to-minibuffer nil)
-    (global-set-key (kbd "M-0") 'select-window-0)
-    (global-set-key (kbd "M-1") 'select-window-1)
-    (global-set-key (kbd "M-2") 'select-window-2)
-    (global-set-key (kbd "M-3") 'select-window-3)
-    (global-set-key (kbd "M-4") 'select-window-4)
-    (global-set-key (kbd "M-5") 'select-window-5)
-    (global-set-key (kbd "M-6") 'select-window-6)
-    (global-set-key (kbd "M-7") 'select-window-7)
-    (global-set-key (kbd "M-8") 'select-window-8)
-    (global-set-key (kbd "M-9") 'select-window-9)
-    (window-numbering-mode 1)))
+  (use-package window-numbering
+    :ensure t
+    :config
+    (progn
+      (setq window-numbering-auto-assign-0-to-minibuffer nil)
+      ;; (global-set-key (kbd "M-0") 'select-window-0)
+      (global-set-key (kbd "M-1") 'select-window-1)
+      (global-set-key (kbd "M-2") 'select-window-2)
+      (global-set-key (kbd "M-3") 'select-window-3)
+      (global-set-key (kbd "M-4") 'select-window-4)
+      (global-set-key (kbd "M-5") 'select-window-5)
+      (global-set-key (kbd "M-6") 'select-window-6)
+      (global-set-key (kbd "M-7") 'select-window-7)
+      (global-set-key (kbd "M-8") 'select-window-8)
+      (global-set-key (kbd "M-9") 'select-window-9)
+      (window-numbering-mode 1)))
 #+END_SRC
 * Helm
 #+BEGIN_SRC emacs-lisp
@@ -148,6 +137,9 @@ Besides, it's only used for programming.
   :ensure t
   :config
   (require 'helm-swoop))
+
+(use-package helm-make
+  :ensure t)
 
 (use-package helm-gtags
   :ensure t
@@ -174,8 +166,16 @@ Besides, it's only used for programming.
   (define-key helm-gtags-mode-map (kbd "C-c <") 'helm-gtags-previous-history)
   (define-key helm-gtags-mode-map (kbd "C-c >") 'helm-gtags-next-history))
 
-
 (use-package helm-themes
+  :ensure t)
+
+(use-package helm-projectile
+  :ensure t
+  :config
+  (helm-projectile-on))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
   :ensure t)
 #+END_SRC
 * Beacon
@@ -195,12 +195,34 @@ Besides, it's only used for programming.
 
 * Theme
 #+BEGIN_SRC emacs-lisp
-  (use-package zerodark-theme
-    :ensure t
-    :init
-      (load-theme 'zerodark t))
+  ;; (use-package zerodark-theme
+  ;;   :ensure t
+  ;;   :init
+  ;;     (load-theme 'zerodark t))
+
+
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-one t))
+(setq doom-themes-treemacs-theme "doom-colors")
+(doom-themes-treemacs-config)
+(doom-themes-org-config)
+
+;; (use-package zenburn-theme
+  ;; :ensure t
+  ;;:config
+  ;; (load-theme 'zenburn t))
+
+(use-package doom-modeline
+  :ensure t
+  :hook
+  (after-init . doom-modeline-mode))
+
+(use-package all-the-icons
+  :ensure t)
 #+END_SRC
-* Dired
+# * Dired
 ** Dired quick sort
 #+BEGIN_SRC emacs-lisp
 (use-package dired-quick-sort
@@ -213,7 +235,7 @@ Besides, it's only used for programming.
 (use-package company
   :ensure t
   :init
-  (global-company-mode t))
+  (add-hook 'after-init-hook   'global-company-mode t))
 
 (use-package company-quickhelp
   :ensure t)
@@ -223,7 +245,13 @@ Besides, it's only used for programming.
   :init
   (require 'company-c-headers)
   (add-to-list 'company-backends 'company-c-headers)
-  (add-to-list 'company-c-headers-path-system "/usr/include/c++/8.2.1/"))
+  (add-to-list 'company-c-headers-path-system "/usr/include/c++/10.2.0/"))
+
+(use-package company-jedi
+:ensure t)
+(defun my/python-mode-hook ()
+(add-to-list 'company-backends 'company-jedi))
+(add-hook 'python-mode-hook 'my/python-mode-hook)
 #+END_SRC
 * Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -263,13 +291,13 @@ Besides, it's only used for programming.
 	      (when (derived-mode-p 'c-mode 'c++-mode 'java-mode)
 		(ggtags-mode 1)))))
 #+END_SRC
-* Neotree
+# * Neotree
 #+BEGIN_SRC emacs-lisp
-   (use-package neotree
-     :ensure t
-    :init
+ ;;  (use-package neotree
+   ;;  :ensure t
+    ;;:init
     ;; (setq neo-theme (if (display-graphic-p) 'icons 'arrow))
-     )
+     ;;)
    #+END_SRC
 
 * Hungry delete
@@ -325,126 +353,6 @@ Besides, it's only used for programming.
     (require 'smartparens-config)
     (smartparens-global-mode t))
 #+END_SRC
-* Spaceline
-#+BEGIN_SRC emacs-lisp
-   (use-package spaceline
-     :ensure t
-     :config
-     (require 'spaceline-config)
-     (setq spaceline-buffer-encoding-abbrev-p nil)
-     (setq spaceline-line-column-p nil)
-     (setq spaceline-line-p nil)
-     (setq powerline-default-separator (quote arrow))
-     (spaceline-spacemacs-theme))
-#+END_SRC
-
-* My Function
-#+BEGIN_SRC emacs-lisp
-(defun daedreth/kill-inner-word ()
-  "Kills the entire word your cursor is in. Equivalent to 'ciw' in vim."
-  (interactive)
-  (forward-char 1)
-  (backward-word)
-  (kill-word 1))
-(global-set-key (kbd "C-c w k") 'daedreth/kill-inner-word)
-
-
-(defun duplicate-line()
-  (interactive)
-  (move-beginning-of-line 1)
-  (kill-line)
-  (yank)
-  (open-line 1)
-  (next-line 1)
-  (yank))
-(global-set-key (kbd "C-c d l") 'duplicate-line)
-
-(defun quick-copy-line ()
-  "Copy the whole line that point is on and move to the beginning of the next line.
-    Consecutive calls to this command append each line to the
-    kill-ring."
-  (interactive)
-  (let ((beg (line-beginning-position 1))
-	(end (line-beginning-position 2)))
-    (if (eq last-command 'quick-copy-line)
-	(kill-append (buffer-substring beg end) (< end beg))
-      (kill-new (buffer-substring beg end))))
-  (beginning-of-line 2))
-
-(global-set-key (kbd "C-c q l") 'quick-copy-line)
-
-
-(defun my--copy-word()
-  (interactive)
-  (forward-word)
-  (setq beg (point))
-  ;;  (message "Begin %d" beg)
-  (call-interactively 'set-mark-command)
-  (backward-word)
-  (setq end (point))
-  ;;(message "End %d" end)
-  (kill-ring-save beg end))
-
-(global-set-key (kbd "C-c q w") 'my--copy-word)
-
-;;; Comment line or region
-
-(defun comment-or-uncomment-region-or-line ()
-  "Comments or uncomments the region or the current line if there's no active region."
-  (interactive)
-  (let (beg end)
-    (if (region-active-p)
-	(setq beg (region-beginning) end (region-end))
-      (setq beg (line-beginning-position) end (line-end-position)))
-    (comment-or-uncomment-region beg end)
-    (next-line)))
-
-(global-set-key (kbd "C-c q r ") 'comment-or-uncomment-region-or-line)
-
-(defun vi-open-line-above ()
-  "Insert a newline above the current line and put point at beginning."
-  (interactive)
-  (unless (bolp)
-    (beginning-of-line))
-  (newline)
-  (forward-line -1)
-  (indent-according-to-mode))
-
-(defun vi-open-line-below ()
-  "Insert a newline below the current line and put point at beginning."
-  (interactive)
-  (unless (eolp)
-    (end-of-line))
-  (newline-and-indent))
-
-(defun vi-open-line (&optional abovep)
-  "Insert a newline below the current line and put point at beginning.
-With a prefix argument, insert a newline above the current line."
-  (interactive "P")
-  (if abovep
-      (vi-open-line-above)
-    (vi-open-line-below)))
-
-(global-set-key (kbd "C-S-o") 'vi-open-line-above)
-(global-set-key (kbd "C-o") 'vi-open-line-below)
-
-(add-hook 'c++-mode-hook 'display-line-numbers-mode )
-;; (add-hook 'c++-mode-hook (setq tab-width 2))
-
-(add-hook 'c-mode-hook 'display-line-numbers-mode )
-;; (add-hook 'c-mode-hook (setq tab-width 2))
-
-
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-#+END_SRC
-* My Keybindings
-#+BEGIN_SRC emacs-lisp
-(global-set-key [f5] 'compile)
-#+END_SRC
 * Expand region
 #+BEGIN_SRC emacs-lisp
   (use-package expand-region
@@ -460,25 +368,173 @@ With a prefix argument, insert a newline above the current line."
     (setq git-commit-summary-max-length 50)
     :bind
     ("M-g" . magit-status))
+
+(use-package evil-magit
+  :ensure t
+  :after magit)
 #+END_SRC
 * Projectile
-Projectile is an awesome project manager, mostly because it recognizes directories
-with a =.git= directory as projects and helps you manage them accordingly.
-
-** Enable projectile globally
-This makes sure that everything can be a project.
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :ensure t
     :init
-      (projectile-mode 1))
+      (projectile-mode 1)
+:config
+  (define-key projectile-mode-map (kbd "C-x p") 'projectile-command-map))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
 #+END_SRC
-* QT pro mode
+* Evil mode
 #+BEGIN_SRC emacs-lisp
-  (use-package qt-pro-mode
-    :ensure t
-    :mode ("\\.pro\\'" "\\.pri\\'")
-    :config
-    (require 'qt-pro-mode)
-    (add-to-list 'auto-mode-alist '()"\\.pr[io]$" . qt-pro-mode))
+(use-package evil
+  :ensure t
+  :init
+  (setq evil-want-integration t) ;; This is optional since it's already set to t by default.
+  (setq evil-want-keybinding nil)
+  :config (evil-mode 1))
+
+ (use-package evil-smartparens
+   :ensure t
+   :config
+   (add-hook 'prog-mode-hook #'evil-smartparens-mode)
+   (add-hook 'emacs-lisp-mode-hook #'evil-smartparens-mode))
+
+(use-package treemacs-evil
+  :after treemacs evil
+  :ensure t)
+
+(use-package evil-collection
+  :ensure t
+  :custom
+  (evil-collection-setup-minibuffer t)
+  (evil-collection-outline-bind-tab-p nil)
+  :init (evil-collection-init))
+
+(use-package evil-commentary
+  :ensure t
+  :init (evil-commentary-mode))
+#+END_SRC
+* Treemacs
+#+BEGIN_SRC emacs-lisp
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-directory-name-transformer    #'identity
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-extension-regex          treemacs-last-period-regex-value
+          treemacs-file-follow-delay             0.2
+          treemacs-file-name-transformer         #'identity
+          treemacs-follow-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         nil
+          treemacs-max-git-entries               5000
+          treemacs-missing-project-action        'ask
+          treemacs-move-forward-on-expand        nil
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                      'left
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             t
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-asc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-user-mode-line-format         nil
+          treemacs-user-header-line-format       nil
+          treemacs-width                         35
+          treemacs-workspace-switch-cleanup      nil)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)))
+
+
+
+#+END_SRC
+* Wich Key
+#+BEGIN_SRC emacs-lisp
+(use-package which-key
+  :ensure t
+  :config (which-key-mode))
+#+END_SRC
+* Dashboard
+#+BEGIN_SRC emacs-lisp
+(use-package dashboard
+  :ensure t
+  :init
+  (progn
+    (setq dashboard-items '((recents . 10)
+			    (projects .10)
+			    (bookmarks . 10))))
+  :config
+  (dashboard-setup-startup-hook))
+#+END_SRC
+* Irony mode
+#+BEGIN_SRC emacs-lisp
+(use-package irony
+  :ensure t
+  :config
+  (add-hook 'c++-mode-hook 'irony-mode)
+  (add-hook 'c-mode-hook 'irony-mode)
+  (add-hook 'objc-mode-hook 'irony-mode)
+  (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options))
+
+(use-package company-irony
+  :ensure t
+  :config
+  (add-to-list 'company-backends 'company-irony))
+
+
+(use-package flycheck-irony
+  :ensure t
+  :config
+  (eval-after-load 'company
+    '(add-hook 'flycheck-mode-hook 'flycheck-irony-setup)))
+
+(use-package irony-eldoc
+  :ensure t
+  :config
+  (add-hook 'irony-mode-hook #'irony-eldoc))
+#+END_SRC
+* Jedi
+#+BEGIN_SRC emacs-lisp
+(use-package jedi
+  :ensure t
+  :init
+  (add-hook 'python-mode-hook 'jedi:setup)
+  ;;:config
+  (setq jedi-completion-on-dot t))
 #+END_SRC
