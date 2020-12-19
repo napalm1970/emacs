@@ -258,6 +258,13 @@ Besides, it's only used for programming.
 (use-package flycheck
   :ensure t
   :init
+(add-hook 'irony-mode-hook
+(lambda ()
+(define-key irony-mode-map [remap completion-at-point]
+'irony-completion-at-point-async)
+(definr-key irony-mode-map [remap complete-symbol]
+'irony-completion-at-point-async)))
+(irony-cdb-autosetup-compile-options))
   (global-flycheck-mode t)
   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 #+END_SRC
@@ -501,7 +508,7 @@ Besides, it's only used for programming.
 			    (bookmarks . 10))))
   :config
   (dashboard-setup-startup-hook))
-#+END_SRC
+ #+END_SRC
 * Irony mode
 #+BEGIN_SRC emacs-lisp
 (use-package irony
@@ -537,4 +544,13 @@ Besides, it's only used for programming.
   (add-hook 'python-mode-hook 'jedi:setup)
   ;;:config
   (setq jedi-completion-on-dot t))
+#+END_SRC
+* Platformio
+#+BEGIN_SRC emacs-lisp
+(use-package platformio-mode
+:ensure t
+:config
+(add-hook 'c++-mode-hook (lambda ()
+(platformio-conditionally-enable)
+(platformio-mode 1))))
 #+END_SRC
