@@ -45,7 +45,7 @@
  '(lisp-source-modes '(lisp-mode common-lisp-mode\
 ))
  '(package-selected-packages
-   '(company-lsp lsp-java lsp-ui lsp-mode slime-company slime platformio-mode jedi evil-collection company-emacs-eclim eclim evil-leader evil qt-pro-mode projectile magit expand-region auto-yasnippet auto-complete company-c-headers compamy-c-headers spaceline zerodark-theme sdcv dashboard monokai-theme color-themes smartparens yasnippet-snippets window-numbering which-key use-package try tabbar stickyfunc-enhance rainbow-delimiters paredit org-bullets neotree hungry-delete helm-themes helm-swoop helm-gtags helm-cscope gruvbox-theme ggtags flycheck dracula-theme disaster dired-quick-sort company-quickhelp cmake-mode clang-format cider beacon ace-window))
+   '(meghanada sly-repl-ansi-color sly-macrostep sly company-lsp lsp-java lsp-ui lsp-mode platformio-mode jedi evil-collection company-emacs-eclim eclim evil-leader evil qt-pro-mode projectile magit expand-region auto-yasnippet auto-complete company-c-headers compamy-c-headers spaceline zerodark-theme sdcv dashboard monokai-theme color-themes smartparens yasnippet-snippets window-numbering which-key use-package try tabbar stickyfunc-enhance rainbow-delimiters paredit org-bullets neotree hungry-delete helm-themes helm-swoop helm-gtags helm-cscope gruvbox-theme ggtags flycheck dracula-theme disaster dired-quick-sort company-quickhelp cmake-mode clang-format cider beacon ace-window))
  '(show-paren-mode t)
  '(tool-bar-mode nil))
 (custom-set-faces

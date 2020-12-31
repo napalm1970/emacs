@@ -551,23 +551,36 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 (platformio-mode 1))))
 #+END_SRC
 
-* Slime
+* Sly
 #+BEGIN_SRC emacs-lisp
-  (use-package slime
-  :ensure t
-  :commands (slime lisp-mode-hook)
-  :init
-  (progn
-  (load (expand-file-name "~/quicklisp/slime-helper.el"))
-  (slime-setup '(slime-fancy slime-company)))
-  ;; :config
-  (setq inferior-lisp-program (executable-find "sbcl")))
+(use-package sly
+:ensure t
+:after lisp-mode
+:hook
+(lisp-mode-local-vars . sly-editing-mode)
+:init
+(defvar inferior-lisp-program "sbcl")
+:commands sly )
 
-  (use-package slime-company
-    :ensure t
-    :after (slime company)
-    :init
-    (setq slime-company-completion 'fuzzy
-		  slime-company-after-completion 'slime-company-just-one-space))
-    ;; (slime-setup '(slime-fancy slime-company))
+(use-package sly-macrostep
+:ensure t
+:after sly)
+
+(use-package sly-repl-ansi-color
+:ensure t
+:init (push 'sly-repl-ansi-color sly-contribs))
+#+END_SRC
+* Meghanada(java)
+#+BEGIN_SRC emacs-lisp
+(use-package meghanada
+:ensure t
+:init
+(add-hook 'java-mode-hook
+          (lambda ()
+            ;; meghanada-mode on
+            (meghanada-mode t)
+            (flycheck-mode +1)
+            (setq c-basic-offset 2)
+            ;; use code format
+            (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))))
 #+END_SRC
