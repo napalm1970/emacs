@@ -33,7 +33,6 @@
 (scroll-bar-mode -1)
 (menu-bar-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
-(global-set-key (kbd "<f5>") 'revert-buffer)
 #+END_SRC
 *** UTF-8
 **** Set UTF-8 encoding
@@ -43,6 +42,14 @@
   (set-keyboard-coding-system 'utf-8)
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
+#+END_SRC
+
+* Transparency
+#+BEGIN_SRC emacs-lisp
+(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
+(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+END_SRC
 
 * Evil mode
@@ -69,11 +76,19 @@
   :custom
   (evil-collection-setup-minibuffer t)
   (evil-collection-outline-bind-tab-p nil)
-  :init (evil-collection-init))
+  :config
+ (evil-collection-init))
 
-(use-package evil-commentary
+
+(use-package evil-nerd-commenter
+:ensure t
+:bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
+(use-package evil-smartparens
   :ensure t
-  :init (evil-commentary-mode))
+  :config
+  (add-hook 'prog-mode-hook #'evil-smartparens-mode)
+  (add-hook 'emacs-lisp-mode-hook #'evil-smartparens-mode))
 #+END_SRC
 * Org
 ** Install
@@ -223,29 +238,68 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 
 * Theme
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package zerodark-theme
-  ;;   :ensure t
-  ;;   :init
-  ;;     (load-theme 'zerodark t))
-
-
+(use-package spacegray-theme :ensure t :defer t)
 (use-package doom-themes
   :ensure t
   :config
-  (load-theme 'doom-one t))
+  ;;(load-theme 'doom-one t)
+:defer 1)
 (setq doom-themes-treemacs-theme "doom-colors")
 (doom-themes-treemacs-config)
 (doom-themes-org-config)
 
-;; (use-package zenburn-theme
-  ;; :ensure t
-  ;;:config
-  ;; (load-theme 'zenburn t))
+(defun dw/replace-unicode-font-mapping (block-name old-font new-font)
+  (let* ((block-idx (cl-position-if
+                         (lambda (i) (string-equal (car i) block-name))
+                         unicode-fonts-block-font-mapping))
+         (block-fonts (cadr (nth block-idx unicode-fonts-block-font-mapping)))
+         (updated-block (cl-substitute new-font old-font block-fonts :test 'string-equal)))
+    (setf (cdr (nth block-idx unicode-fonts-block-font-mapping))
+          `(,updated-block))))
+
+(use-package unicode-fonts
+  :ensure t
+
+  :custom
+  (unicode-fonts-skip-font-groups '(low-quality-glyphs))
+  :config
+  ;; Fix the font mappings to use the right emoji font
+  (mapcar
+    (lambda (block-name)
+      (dw/replace-unicode-font-mapping block-name "Apple Color Emoji" "Noto Color Emoji"))
+    '("Dingbats"
+      "Emoticons"
+      "Miscellaneous Symbols and Pictographs"
+      "Transport and Map Symbols"))
+  (unicode-fonts-setup))
+
+(use-package diminish :ensure t)
+
+(use-package minions
+  :ensure t
+  :hook (doom-modeline-mode . minions-mode)
+  :custom
+  (minions-mode-line-lighter ""))
 
 (use-package doom-modeline
   :ensure t
-  :hook
-  (after-init . doom-modeline-mode))
+  :after eshell     ;; Make sure it gets hooked after eshell
+  :hook (after-init . doom-modeline-init)
+  :custom-face
+  (mode-line ((t (:height 0.85))))
+  (mode-line-inactive ((t (:height 0.85))))
+  :custom
+  (doom-modeline-height 15)
+  (doom-modeline-bar-width 6)
+  (doom-modeline-lsp t)
+  (doom-modeline-github nil)
+  (doom-modeline-mu4e nil)
+  (doom-modeline-irc nil)
+  (doom-modeline-minor-modes t)
+  (doom-modeline-persp-name nil)
+  (doom-modeline-buffer-file-name-style 'truncate-except-project)
+  (doom-modeline-major-mode-icon nil))
+
 
 (use-package all-the-icons
   :ensure t)
@@ -266,7 +320,9 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
   (add-hook 'after-init-hook   'global-company-mode t))
 
 (use-package company-quickhelp
-  :ensure t)
+  :ensure t
+  :after company
+  :config (company-quickhelp-mode))
 
 (use-package company-c-headers
   :ensure t
@@ -280,6 +336,17 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 (defun my/python-mode-hook ()
 (add-to-list 'company-backends 'company-jedi))
 (add-hook 'python-mode-hook 'my/python-mode-hook)
+
+(use-package helm-flycheck
+  :ensure t
+  :after flycheck)
+
+(use-package helm-make
+  :ensure t
+  :bind (("C-c c c" . helm-make-projectile)
+         ;; FIXME: Write a more sophisticated command that checks whether a
+         ;; Makefile exists and falls back to an alternative if not.
+         ("<f5>" . helm-make-projectile)))
 #+END_SRC
 * Flycheck
 #+BEGIN_SRC emacs-lisp
@@ -396,15 +463,108 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 #+BEGIN_SRC emacs-lisp
 (use-package magit
     :ensure t
+
+    :bind (("C-c g c" . magit-clone)
+         ("C-c g s" . magit-status)
+         ("C-c g b" . magit-blame)
+         ("C-c g l" . magit-log-buffer-file)
+         ("C-c g p" . magit-pull)
+         ("C-c C-v" . magit-status)
+         ("A-v"     . magit-status)
+         ("A-w"     . magit-status)
+         ("s-w"     . magit-status)
+         ("C-x g"   . magit-status)
+         ("C-x G"   . magit-status-with-prefix)
+         ("C-A-g"   . custom-grep-find)
+         ("A-r"     . magit-reflog))
+    :commands (magit-status madit-get-current-nranch)
     :config
     (setq magit-push-always-verify nil)
-    (setq git-commit-summary-max-length 50)
-    :bind
-    ("M-g" . magit-status))
+    (setq git-commit-summary-max-length 50))
+
 
 (use-package evil-magit
   :ensure t
   :after magit)
+
+(use-package git-commit                 ; Git commit message mode
+  :ensure t
+  :defer t
+  :config
+  (remove-hook 'git-commit-finish-query-functions
+               #'git-commit-check-style-conventions))
+
+(use-package gitconfig-mode             ; Git configuration mode
+  :ensure t
+  :defer t
+  :config (add-hook 'gitconfig-mode-hook
+                    (lambda ()
+                      (setf indent-tabs-mode nil
+                            tab-width 4))))
+
+(use-package gitignore-mode             ; .gitignore mode
+  :ensure t
+  :defer t)
+
+(use-package gitattributes-mode         ; Git attributes mode
+  :ensure t
+  :defer t)
+
+(use-package git-timemachine            ; Go back in Git time
+  :ensure t
+  :defer t
+  :bind (("C-c g t" . git-timemachine)))
+
+(use-package helm-gitignore             ; Generate gitignore files
+  :ensure t
+  :defer t
+  :bind ("C-c g I" . helm-gitignore))
+
+(use-package git-gutter
+  :ensure t
+  :diminish git-gutter-mode
+  :commands (stage-or-commit)
+  :bind (("C-x C-g" . git-gutter:toggle)
+         ("C-x v =" . git-gutter:popup-hunk)
+         ;; ("C-x p"   . git-gutter:previous-hunk)
+         ;; ("C-x n"   . git-gutter:next-hunk)
+         ("A-p"     . git-gutter:previous-hunk)
+         ("A-n"     . git-gutter:next-hunk)
+         ("C-A-p"   . git-gutter:previous-hunk)
+         ("C-A-n"   . git-gutter:next-hunk-diff)
+         ("C-A-c"   . stage-or-commit)
+         ("C-x v s" . git-gutter:stage-hunk)
+         ("C-x v r" . git-gutter:revert-hunk)
+         ("C-A-r"   . git-gutter:revert-hunk))
+  :init (global-git-gutter-mode +1)
+  :config
+  (progn
+    (defun git-gutter:diff-hunk ()
+      "Popup diff of current hunk."
+      (interactive)
+      (git-gutter:awhen (git-gutter:search-here-diffinfo git-gutter:diffinfos)
+        (git-gutter:popup-hunk it)
+        (git-gutter:popup-buffer-window)))
+
+
+    (defun git-gutter:next-hunk-diff (&optional arg)
+      (interactive "p")
+      (git-gutter:next-hunk arg)
+      (recenter nil)
+      (git-gutter:diff-hunk))
+
+
+    (defun stage-or-commit (&optional arg)
+      (interactive "p")
+      (if (ignore-errors (git-gutter:search-here-diffinfo git-gutter:diffinfos))
+          (git-gutter:stage-hunk)
+        (progn
+          (save-excursion
+            (magit-diff-staged)
+            (magit-commit))))
+      (when (functionp 'magit-update-status-on-save)
+        (magit-update-status-on-save)))
+
 #+END_SRC
 * Projectile
 #+BEGIN_SRC emacs-lisp
@@ -465,7 +625,8 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
           treemacs-user-mode-line-format         nil
           treemacs-user-header-line-format       nil
           treemacs-width                         35
-          treemacs-workspace-switch-cleanup      nil)
+          treemacs-workspace-switch-cleanup      nil
+	  treemacs-show-hidden-files             nil)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -556,11 +717,12 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 (use-package sly
 :ensure t
 :after lisp-mode
+:bind ([f6] . sly)
 :hook
 (lisp-mode-local-vars . sly-editing-mode)
 :init
-(defvar inferior-lisp-program "sbcl")
-:commands sly )
+(defvar inferior-lisp-program "sbcl"))
+
 
 (use-package sly-macrostep
 :ensure t
@@ -569,18 +731,92 @@ Hitting tab after an "<el" in an org-mode file will create a template for elisp 
 (use-package sly-repl-ansi-color
 :ensure t
 :init (push 'sly-repl-ansi-color sly-contribs))
+
 #+END_SRC
 * Meghanada(java)
 #+BEGIN_SRC emacs-lisp
 (use-package meghanada
 :ensure t
-:init
+:hook
 (add-hook 'java-mode-hook
           (lambda ()
             ;; meghanada-mode on
             (meghanada-mode t)
-            (flycheck-mode +1)
+            (flycheck-mode )
             (setq c-basic-offset 2)
             ;; use code format
             (add-hook 'before-save-hook 'meghanada-code-beautify-before-save))))
+#+END_SRC
+* Eshell
+#+BEGIN_SRC emacs-lisp
+(use-package fish-completion
+:ensure t
+  :hook (eshell-mode . fish-completion-mode))
+
+(use-package eshell-syntax-highlighting
+:ensure t
+  :after eshell-mode
+  :config
+  (eshell-syntax-highlighting-global-mode +1))
+
+(use-package esh-autosuggest
+:ensure t
+  :hook (eshell-mode . esh-autosuggest-mode)
+  :config
+  (setq esh-autosuggest-delay 0.5)
+  (set-face-foreground 'company-preview-common "#4b5668")
+  (set-face-background 'company-preview nil))
+
+(use-package eshell-toggle
+:ensure t
+  :bind ("C-M-'" . eshell-toggle)
+  :custom
+  (eshell-toggle-size-fraction 3)
+  (eshell-toggle-use-projectile-root t)
+  (eshell-toggle-run-command nil))
+#+END_SRC
+* Lisp
+#+BEGIN_SRC emacs-lisp
+(use-package parinfer
+	:ensure t
+  :hook ((clojure-mode . parinfer-mode)
+         (emacs-lisp-mode . parinfer-mode)
+         (common-lisp-mode . parinfer-mode)
+         (scheme-mode . parinfer-mode)
+         (lisp-mode . parinfer-mode))
+  :config
+  (setq parinfer-extensions
+			'(defaults       ; should be included.
+				 pretty-parens  ; different paren styles for different modes.
+				 evil           ; If you use Evil.
+				 smart-tab      ; C-b & C-f jump positions and smart shift with tab & S-tab.
+				 smart-yank)))  ; Yank behavior depend on mode.
+#+END_SRC
+* Super Save
+#+BEGIN_SRC emacs-lisp
+(use-package super-save
+  :ensure t
+  :defer 1
+  :diminish super-save-mode
+  :config
+  (super-save-mode +1)
+  (setq super-save-auto-save-when-idle t))
+#+END_SRC
+
+(setq-default tab-width 2)
+(setq-default evil-shift-width tab-width)
+
+* ws-butler
+#+BEGIN_SRC emacs-lisp
+(use-package ws-butler
+	:ensure t
+  :hook ((text-mode . ws-butler-mode)
+         (prog-mode . ws-butler-mode)))
+#+END_SRC
+* Undo tree
+#+BEGIN_SRC emacs-lisp
+(use-package undo-tree
+:ensure t
+:init (global-undo-tree-mode)
+:diminish (global-undo-tree-mode))
 #+END_SRC
