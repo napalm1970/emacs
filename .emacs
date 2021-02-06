@@ -58,7 +58,7 @@
 
 
 (setq scroll-step 1)
-(setq scroll-margin 1)
+(setq scroll-margin 15)
 (setq scroll-conservatively 101)
 (setq scroll-up-aggressively 0.01)
 (setq scroll-down-aggressively 0.01)
