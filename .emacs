@@ -419,6 +419,17 @@
   )
 
 
+(use-package magit
+  :if (executable-find "git")
+  :bind
+  (("C-x g" . magit-status)
+   (:map magit-status-mode-map
+         ("M-RET" . magit-diff-visit-file-other-window)))
+  :config
+  (defun magit-log-follow-current-file ()
+    "A wrapper around `magit-log-buffer-file' with `--follow' argument."
+    (interactive)
+    (magit-log-buffer-file t)))
 
 
 
@@ -430,7 +441,7 @@
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
+   '(magit lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
