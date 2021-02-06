@@ -73,6 +73,19 @@
 ;; Set up the visible bell
 (setq visible-bell t)
 
+
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+;; Treat clipboard input as UTF-8 string first; compound text next, etc.
+(when (display-graphic-p)
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+
+
 (set-face-attribute 'default nil :font "Fira Code Retina" :height 113)
 ;; (load-theme 'wombat)
 
@@ -249,24 +262,44 @@
 (use-package company-box
   :hook (company-mode . company-box-mode))
 
-
-
-
 (use-package yasnippet
+  :diminish yas-minor-mode
   :init
-  (yas-global-mode 1))
+  (use-package yasnippet-snippets :after yasnippet)
+  :hook ((prog-mode LaTeX-mode org-mode) . yas-minor-mode)
+  :bind
+  (:map yas-minor-mode-map ("C-c C-n" . yas-expand-from-trigger-key))
+  (:map yas-keymap
+        (("TAB" . smarter-yas-expand-next-field)
+         ([(tab)] . smarter-yas-expand-next-field)))
+  :config
+  (yas-reload-all)
+  (defun smarter-yas-expand-next-field ()
+    "Try to `yas-expand' then `yas-next-field' at current cursor position."
+    (interactive)
+    (let ((old-point (point))
+          (old-tick (buffer-chars-modified-tick)))
+      (yas-expand)
+      (when (and (eq old-point (point))
+                 (eq old-tick (buffer-chars-modified-tick)))
+        (ignore-errors (yas-next-field))))))
 
-(use-package yasnippet-snippets
-  :init
-  (setq yas-snippet-dirs
-	(progn
-	  (dired  '("/home/napalm/.emacs.d/elpa/"))
-	  (switch-to-buffer (other-buffer))
-	  (set-buffer (other-buffer))
-	  (dired-mark-files-regexp "yasnippet-snippets-[0-9]*\.[0-9]*")
-	  (setq fname (dired-get-filename))
-	  (kill-buffer (other-buffer))
-	  (list fname))))
+
+;; (use-package yasnippet
+;;   :init
+;;   (yas-global-mode 1))
+
+;; (use-package yasnippet-snippets
+;;   :init
+;;   (setq yas-snippet-dirs
+;; 	(progn
+;; 	  (dired  '("/home/napalm/.emacs.d/elpa/"))
+;; 	  (switch-to-buffer (other-buffer))
+;; 	  (set-buffer (other-buffer))
+;; 	  (dired-mark-files-regexp "yasnippet-snippets-[0-9]*\.[0-9]*")
+;; 	  (setq fname (dired-get-filename))
+;; 	  (kill-buffer (other-buffer))
+;; 	  (list fname))))
 
 
 
@@ -423,7 +456,11 @@
   :config (setq lsp-completion-enable-additional-text-edit nil))
 (use-package lsp-ui)
 (use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
-(use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
+(use-package dap-mode
+  :after lsp-mode
+  :config (dap-auto-configure-mode)
+  :hook
+  (sh-mode . lsp))
 (use-package dap-java :ensure nil)
 (use-package helm-lsp)
 (use-package lsp-treemacs)
@@ -470,6 +507,60 @@
     (magit-log-buffer-file t)))
 
 
+(use-package undo-tree
+  :defer t
+  :diminish undo-tree-mode
+  :init (global-undo-tree-mode)
+  :custom
+  (undo-tree-visualizer-diff t)
+  (undo-tree-visualizer-timestamps t))
+
+(use-package popup-kill-ring
+  :bind ("M-y" . popup-kill-ring))
+
+
+(use-package discover-my-major
+  :bind ("C-h C-m" . discover-my-major))
+
+(use-package aweshell
+  :load-path (lambda () (expand-file-name "aweshell" user-emacs-directory))
+  :commands (aweshell-new aweshell-dedicated-open)
+  :bind
+  (("M-#" . aweshell-dedicated-open)
+   (:map eshell-mode-map ("M-#" . aweshell-dedicated-close))))
+
+
+
+;; Remove useless whitespace before saving a file
+(defun delete-trailing-whitespace-except-current-line ()
+  "An alternative to `delete-trailing-whitespace'.
+
+The original function deletes trailing whitespace of the current line."
+  (interactive)
+  (let ((begin (line-beginning-position))
+        (end (line-end-position)))
+    (save-excursion
+      (when (< (point-min) (1- begin))
+        (save-restriction
+          (narrow-to-region (point-min) (1- begin))
+          (delete-trailing-whitespace)
+          (widen)))
+      (when (> (point-max) (+ end 2))
+        (save-restriction
+          (narrow-to-region (+ end 2) (point-max))
+          (delete-trailing-whitespace)
+          (widen))))))
+
+(defun smart-delete-trailing-whitespace ()
+  "Invoke `delete-trailing-whitespace-except-current-line' on selected major modes only."
+  (unless (member major-mode '(diff-mode))
+    (delete-trailing-whitespace-except-current-line)))
+
+(add-hook 'before-save-hook #'smart-delete-trailing-whitespace)
+
+;; Replace selection on insert
+(delete-selection-mode 1)
+
 
 
 (custom-set-variables
@@ -479,7 +570,7 @@
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(magit lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
+   '(discover-my-major undo-tree popup-kill-ring magit lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
