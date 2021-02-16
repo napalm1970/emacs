@@ -58,7 +58,7 @@
 
 
 (setq scroll-step 1)
-(setq scroll-margin 15)
+(setq scroll-margin 25)
 (setq scroll-conservatively 101)
 (setq scroll-up-aggressively 0.01)
 (setq scroll-down-aggressively 0.01)
@@ -345,7 +345,7 @@
           treemacs-tag-follow-delay              1.5
           treemacs-user-mode-line-format         nil
           treemacs-user-header-line-format       nil
-          treemacs-width                         35
+          treemacs-width                         25
           treemacs-workspace-switch-cleanup      nil
 	  treemacs-show-hidden-files             nil)
 
