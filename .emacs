@@ -171,6 +171,7 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
+(use-package helm-themes)
 
 (use-package evil
   :init
@@ -570,7 +571,7 @@ The original function deletes trailing whitespace of the current line."
  ;; If there is more than one, they won't work right.
  '(helm-minibuffer-history-key "M-p")
  '(package-selected-packages
-   '(discover-my-major undo-tree popup-kill-ring magit lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
+   '(helm-themes discover-my-major undo-tree popup-kill-ring magit lsp-clients yasnippet-snippets ws-butler window-numbering which-key use-package treemacs-projectile treemacs-evil smartparens sly-repl-ansi-color sly-macrostep rainbow-delimiters quickrun platformio-mode lsp-ui lsp-jedi lsp-java kotlin-mode helm-swoop helm-projectile helm-make helm-lsp flycheck evil-surround evil-leader evil-collection eshell-toggle doom-themes doom-modeline diminish dashboard company-box ccls beacon)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
