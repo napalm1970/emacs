@@ -44,7 +44,9 @@
                                  (window-start) msg))))))
           (blink-matching-open))))))
 
-(global-linum-mode t)
+;; (add-hook 'prog-mode-hook (linum-mode 1))
+
+;; (global-linum-mode t)
 (scroll-bar-mode -1)        ; Disable visible scrollbar
 (tool-bar-mode -1)          ; Disable the toolbar
 (tooltip-mode -1)           ; Disable tooltips
@@ -215,6 +217,9 @@
 
 (evil-leader/set-leader ",")
 
+(use-package evil-nerd-commenter
+  :bind ("M-/" . evilnc-comment-or-uncomment-lines))
+
 
 
 (use-package dashboard
@@ -253,12 +258,16 @@
 
 
 (use-package company
-  :init (global-company-mode t)
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
   :bind (:map company-active-map
-              ("<tab>" . company-complete-selection))
+         ("<tab>" . company-complete-selection))
+        (:map lsp-mode-map
+         ("<tab>" . company-indent-or-complete-common))
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0))
+
 
 (use-package company-box
   :hook (company-mode . company-box-mode))
@@ -466,6 +475,8 @@
 (use-package helm-lsp)
 (use-package lsp-treemacs)
 
+
+
 (use-package ccls
   :defer t
   :hook ((c-mode c++-mode objc-mode) .
@@ -489,11 +500,25 @@
     :library-folders-fn nil)))
 
 
-(use-package lsp-jedi
-  :ensure t
-  :hook ((python-mode . (lambda () (lsp))))
-  )
+;; (use-package lsp-jedi
+;;   :ensure t
+;;   :hook ((python-mode . (lambda () (lsp))))
+;;   )
 
+(use-package python-mode
+  :ensure t
+  :hook (python-mode . lsp-deferred)
+  :custom
+  ;; NOTE: Set these if Python 3 is called "python3" on your system!
+  ;; (python-shell-interpreter "python3")
+  ;; (dap-python-executable "python3")
+  (dap-python-debugger 'debugpy)
+  :config
+  (require 'dap-python))
+
+(use-package pyvenv
+  :config
+  (pyvenv-mode 1))
 
 (use-package magit
   :if (executable-find "git")
@@ -523,12 +548,12 @@
 (use-package discover-my-major
   :bind ("C-h C-m" . discover-my-major))
 
-(use-package aweshell
-  :load-path (lambda () (expand-file-name "aweshell" user-emacs-directory))
-  :commands (aweshell-new aweshell-dedicated-open)
-  :bind
-  (("M-#" . aweshell-dedicated-open)
-   (:map eshell-mode-map ("M-#" . aweshell-dedicated-close))))
+;; (use-package aweshell
+;;   :load-path (lambda () (expand-file-name "aweshell" user-emacs-directory))
+;;   :commands (aweshell-new aweshell-dedicated-open)
+;;   :bind
+;;   (("M-#" . aweshell-dedicated-open)
+;;    (:map eshell-mode-map ("M-#" . aweshell-dedicated-close))))
 
 
 
@@ -561,6 +586,7 @@ The original function deletes trailing whitespace of the current line."
 
 ;; Replace selection on insert
 (delete-selection-mode 1)
+
 
 
 
